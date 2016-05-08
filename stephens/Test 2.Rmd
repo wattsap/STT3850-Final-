@@ -1,15 +1,70 @@
 ---
-title: Test 2 Study Guide
-author: Stephen Bunn, Andrew Watts, Ben Adams
+title: "Test 2"
+author: "Stephen Bunn, Ben Adams, Andrew Watts"
+date: "March 25, 2016"
+output: html_document
 ---
 
 ```{r, setup}
 library(datasets)
-library(gtools)
 ```
+
+
+#### Utilities/Random ass functions and what they do
+
+###### Randomly Sampling Data
+
+```{r}
+split_data <- function(dat, splits=c(.5, .5), fudge=1) {
+  stopifnot(all(splits) >= 0, fudge <= length(splits))
+  splits <- (splits / sum(splits))
+  n_dat_sum <- round(nrow(dat) * splits)
+  n_dat_sum[fudge] <- (nrow(dat) - sum(n_dat_sum[-fudge]))
+  return(split(dat, sample(rep(1:length(splits), n_dat_sum))))
+}
+```
+
+Examples of `split_data` below...
+
+```{r}
+split_data(mtcars) # 50/50 split by default
+split_data(mtcars, splits=c(.2, .4, .3, .1)) # 20/40/30/10 split
+```
+
+###### Plotting
+
+Example of normal quantile plots...
+
+```{r}
+qq_example_x <- c(21.7, 22.6 , 26.1, 28.3, 30, 31.2, 31.5, 33.5, 34.7, 36)
+qqnorm(qq_example_x)		# plot points to the quantiles of the standard normal on the x axis. 
+qqline(qq_example_x)	 	# adds a straight line through the first and thrid quartiles of the data. 
+```
+
+Plotting empirical cumulative distribution functions...
+
+```{r}
+empirical_example_x <- c(3, 6, 15, 15, 17, 19, 24) 
+plot.ecdf(empirical_example_x) 
+empirical_example_x <- rnorm(25) 
+plot.ecdf(empirical_example_x, xlim = c(-4, 4))					# adjust x range 
+# curve(pnorm(empirical_example_x), col = "blue" , add = TRUE)	# impose normal cdf  
+# abline(v = 25, col = "red") 									# add vertical line
+```
+
+Observed Mean difference 
+
+```{r}
+#tapply(x$y, z$y, mean)  #example, no data though :( 
+#observed <- output of one minus the other
+```
+
+
+
+
 ---
 
-### Vocab
+### Definitions
 
 1.  **Observational Study**: observing a group without influencing it.
 2.  **Designed Experiment**: applies something to a group and sees what it does.
@@ -45,145 +100,14 @@ library(gtools)
 29. **Type 1 Error**: Rejecting a true Null Hypothesis.
 30. **Type 2 Error**: Not rejecting a false Null Hypothesis.
 
----
-#### Utilities/Random ass functions and what they do
 
----
-###### Randomly Sampling Data
-
-```{r}
-split_data <- function(dat, splits=c(.5, .5), fudge=1) {
-  stopifnot(all(splits) >= 0, fudge <= length(splits))
-  splits <- (splits / sum(splits))
-  n_dat_sum <- round(nrow(dat) * splits)
-  n_dat_sum[fudge] <- (nrow(dat) - sum(n_dat_sum[-fudge]))
-  split(dat, sample(rep(1:length(splits), n_dat_sum)))
-}
-```
-
-Examples of `split_data` below...
-
-```{r}
-split_data(mtcars) # 50/50 split by default
-split_data(mtcars, splits=c(.2, .4, .3, .1)) # 20/40/30/10 split≈
-```
----
-
-###### Plotting
-
-Example of normal quantile plots...
-
-```{r}
-qq_example_x <- c(21.7, 22.6 , 26.1, 28.3, 30, 31.2, 31.5, 33.5, 34.7, 36)
-qqnorm(qq_example_x)        # plot points to the quantiles of the standard normal on the x axis. 
-qqline(qq_example_x)        # adds a straight line through the first and thrid quartiles of the data. 
-```
-
-Plotting empirical cumulative distribution functions...
-
-```{r}
-empirical_example_x <- c(3, 6, 15, 15, 17, 19, 24) 
-plot.ecdf(empirical_example_x) 
-empirical_example_x <- rnorm(25) 
-plot.ecdf(empirical_example_x, xlim = c(-4, 4))                 # adjust x range 
-# curve(pnorm(empirical_example_x), col = "blue" , add = TRUE)  # impose normal cdf  
-# abline(v = 25, col = "red")                                   # add vertical line
-```
-
-Observed Mean difference 
-
-```{r}
-#tapply(x$y, z$y, mean)  #example, no data though :( 
-#observed <- output of one minus the other
-```
-
-
-
-bascially asking for a being able to test a single population - 
-    stating null and hypothesis
-    EXAMPLE: pg 35
-        mice going through the maze - 
-        null - there is no difference (mew zero)
-        alternative - there is a difference (mew D) one variable (drug in this case) has an effect
-    meanA - meanB
-    #this is numberical 
-
-
-    drug <- c(30, 25, 20)
-    cont <- c(18, 21, 22)
-    
-    all <- c(drug, cont)
-
-    mean difference - 6 c 3 ways to get the numbers 
-        calc observed value - mean of drug(mice drug) - mean of control(normal mice)
-    use gtools
-    combo <- combinations(n, r, v=1:n, set=T,)
-    combo <- combinations(6, 3, v=all, set=T,)
-    #exact - use the function (mew of d - mew of c) -> mean(drug) - mean(cont)
-    # observed == test statistic of original distribution
-    # p-value <- length(z(x >= observed value)) / 20 =>(6 c 3)
-    
-    # approximate_way <-  sd(all) / sqrt(length(all))
-    
-    
-benoulli <- Boolean values (true false, head/tails, Yes/No)
-     find test statistic - probably the amount in each group 
-     group1 - vote 300 yes
-     group2 - vote 200 yes
-     
-     test-statistic = group1 - group2
-     
-     #after getting test stat 
-     find the observed value <- group 1 - group2
-     exact <- combination(n, r, 1:n, set = T, )
-     
-     approx <- sqrt((weight(1 -weight))/500(from both yes)) 
- 
----
-
-##### Examples of basic r functions and their meanings
-
-choose n numbers between min x and max y
-
-```{r}
-runif(4, min=3, max=13)
-```
-Select n random normally chosen integers
-
-```{r}
-rnorm(10)
-```
-randomly sample vector v into new vector of size n
-
-```{r}
-x <- 10:14
-sample(x, size=4)
-```
-**Permutations**: 
-- order matters
-- P(n,k) = n!/(n-k)!
-**Combinations**:
-- order doesnt matter
-- C(n,k) = n!/(n-k)!k!
-
-```{r}
-# src size, dst size, vector, remove duplicates
-y <- 1:100
-# permutations(8,4,y, set=FALSE)
-#yeilds 1680 permutations
-
-#same params as permutate
-# kcombinations(8,4,y, set=FALSE)
-#yeilds 70 combinations
-```
----
 
 ### Approximate Reference Distribution Equations
 
 
 |Testing Procedure|Data Type|Test Statsistic|Exact Reference Distribution|Approximate Reference Distribution|Null Hypothesis|
 |:--:|:--:|:--:|:--:|:--:|:--:|
-|Population mean $\mu$|Numerical|Sample mean $\hat{x}$|The distribution of all possible values of $\hat{x}$ under $H_O$|$N(\mu_O, \frac{\delta}{\sqrt{n}})$|$H_O: \mu=\mu_O$|
+|Population mean $\mu$|Numerical|Sample mean $\bar{x}$|The distribution of all possible values of $\bar{x}$ under $H_O$|$N(\mu_O, \frac{\delta}{\sqrt{n}})$|$H_O: \mu=\mu_O$|
 |Population portion $P$|Bernoulli|Sample porportion $\hat{P}$|The distribution of all possible values of $\hat{P}$ under $H_O$|$N(\mu_O, \sqrt{\frac{P_O*(1-P_O)}{n}})$|$H_O: P=P_O$|
 
 ---
@@ -191,7 +115,6 @@ y <- 1:100
 ### Activity 5
 
 1. _The R codes that will store the data from the AsULearn file `StudentProfile.csv` in a data frame called designdata, display the first few rows of the data frame and count the number of cases_
-TLDR: reads file, displays first couple
 
 ```{r}
 student_profile_csv <- "Student,Sex,Class,Grade
@@ -226,17 +149,16 @@ Stephen,M,J,C
 David,M,F,C
 Mandy,F,J,D"
 designdata <- read.csv(textConnection(student_profile_csv))
-head(designdata)    # head print out the first few entries
-nrow(designdata)    # prints out the number of rows 
+head(designdata)	# head print out the first few entries
+nrow(designdata)	# prints out the number of rows 
 ```
 
 2. _The R codes for a function that will randomly select about half of the experimental units stored in a vector x, assigns them to treatment 1 and then assigns the remaining experimental units to treatment 2. The output of the function should display the entries of the vector that are assigned to each of the two treatments._
-TLDR: 2 way ANOVA, CRD
 
 ```{r}
 assignrand <- function(x) 
 {
-  half     <- floor(length(x)/2);
+  half 	   <- floor(length(x)/2);
   indicies <- sample(1:length(x), half)
   t1 <- x[indicies]
   t2 <- x[-indicies]
@@ -281,7 +203,7 @@ if (numA1 > numA2) {
   cat("Treatment 2 has more A students than treatement 1.\n")
 }
 
-ftable(treatment1Population$Grade)  # ftable == flat contengency table 
+ftable(treatment1Population$Grade)	# ftable == flat contengency table 
 ftable(treatment2Population$Grade)
 
 par(mfrow=c(1,2)) # par == sets parameters for graphs this means 1 row and 2 columns
@@ -289,10 +211,10 @@ plot(treatment1Population$Grade, main="Grades of Students\nReceiving Treatment 1
 plot(treatment2Population$Grade, main='Grades of Students\nReceiving Treatment 2', xlab='Grade', ylab='Frequency')
 ```
 
-6. The R codes that will implement a Randomized Complete Block Design with the students in the data frame as the experimental units and with sex as a blocking variable. The R codes should use the function in **#3** in assigning the students in a block to the two treatments. The output of the R codes should display the names of the students, the block where the student belongs to and the treatment where the students were assigned to._
+6. _The R codes that will implement a Randomized Complete Block Design with the students in the data frame as the experimental units and with sex as a blocking variable. The R codes should use the function in **#3** in assigning the students in a block to the two treatments. The output of the R codes should display the names of the students, the block where the student belongs to and the treatment where the students were assigned to._
 
 ```{r}
-male = transform(subset(designdata, subset=Sex == 'M'), Block = 'Male')     # transform == adds entry to a table
+male = transform(subset(designdata, subset=Sex == 'M'), Block = 'Male')		# transform == adds entry to a table
 female = transform(subset(designdata, subset=Sex == 'F'), Block = 'Female')
 maleTreatments = assignrand(1:nrow(male))
 
@@ -331,7 +253,6 @@ plot(maleone$Grade, main='Grades of Male Students Receiving Treatment One', xlab
 ```
 
 8. _The R codes that will help you answer which of the two treatment groups in the female block contain more A students. The R codes should display the answer with a supporting graph or statistics._
-TLDR: which contains more
 
 ```{r}
 female<-subset(augmentedData, Sex=='F')
@@ -370,7 +291,7 @@ for (i in 1:length(classLevels)) {
     selection1 = strtoi(rownames(cohort[indicies[1],]))
     selection2 = strtoi(rownames(cohort[indicies[2],]))
     #this gives us all eight pairs. each pair is a column
-    pairs = cbind(pairs, c(selection1, selection2)) # cbind -> is column binding 
+    pairs = cbind(pairs, c(selection1, selection2))
   }
 }
 
@@ -425,6 +346,8 @@ par(mfrow=c(1,2))
 plot(treatment1Population$Grade, main="Grades of Students\nReceiving Treatment 1", xlab='Grade', ylab='Frequency')
 plot(treatment2Population$Grade, main='Grades of Students\nReceiving Treatment 2', xlab='Grade', ylab='Frequency')
 ```
+
+
 ---
 
 ### Activity 6

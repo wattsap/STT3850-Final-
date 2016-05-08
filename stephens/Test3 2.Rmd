@@ -1,0 +1,333 @@
+---
+title: "Test 3"
+date: "April 28, 2016"
+output: html_document
+---
+
+---
+
+## Confidence Interval Estimation
+
+### Estimation Population Mean ($\mu$)
+
+|Variable|Description|
+|-------:|:----------|
+|$\mu$|The population mean.|
+|$\bar{x}$|The sample mean.|
+|$\sigma$|The population standard deviation.|
+|$S$|The sample standard deviation.|
+|$n$|The sample size.|
+|$\frac{Z_{\alpha}}{2}$|$100(1-\frac{\alpha}{2})^{th}$ percentile of a $N(0, 1)$ distribution.|
+
+- If $\sigma$ is known, then use this formula:
+    + $(\bar{x}-\frac{Z_{\alpha}}{2}\frac{\sigma}{\sqrt{n}},\bar{x}+\frac{Z_{\alpha}}{2}\frac{\sigma}{\sqrt{n}})$
+- If $\sigma$ is **not** known, then use this formula:
+    + $(\bar{x}-\frac{t_{\alpha}(n-1)}{2}\frac{S}{\sqrt{n}},\bar{x}+\frac{t_{\alpha}(n-1)}{2}\frac{S}{\sqrt{n}})$
+
+---
+
+> What `t` value is needed as amultiplier in estimating $\mu$ with $80\%$ confidence if $\sigma$ is not known and $n=100$?
+
+```{r}
+z <- qnorm((1 - ((1 - 0.8) / 2)), 0 , 1) # if sigma known
+t <- qt((1 - ((1 - 0.8) / 2)), (100 - 1)) # if sigma not known
+z
+t
+```
+
+---
+
+> What sample size $n$ is needed to estimate the mean annual household income in Boone with $99\%$ confidence and with a margin of error less that $1000? Assume that $\sigma = 5000$.
+
+With some refactoring of the known sigma equation...
+
+$n = (\frac{\frac{Z_{\alpha}}{2}\sigma}{MoE})^{2}$
+
+```{r}
+(qnorm((1 - ((1 - 0.99) / 2)), 0, 1) * 5000 / 1000) ^ 2
+```
+
+---
+
+### Estimation Population Proportion ($P$)
+
+$(\hat{P}-\frac{Z_{\alpha}}{2}\sqrt{\frac{\hat{P}(1-\hat{P})}{n}},\hat{P}+\frac{Z_{\alpha}}{2}\sqrt{\frac{\hat{P}(1-\hat{P})}{n}})$
+
+---
+
+> Estimate with $90\%$ confidence the proportion/percentage of all households in Boone that have kids based on a sample of $1000$ households if $320$ of these households have kids.
+
+```{r}
+n <- 1000
+p_hat <- 320 / n
+z <- qnorm((1 - ((1 - 0.9) / 2)), 0, 1)
+MoE <- z * sqrt(p_hat * (1 - p_hat) / n)
+lowlim <- p_hat - MoE
+uplim <- p_hat + MoE
+print(paste('(', lowlim, ',', uplim, ')', sep=' '))
+```
+
+We can be $90\%$ confidence that anywhere between $29.57\%$ and $34.43\%$ of all households in Boone have kids.
+
+---
+
+> What sample size $n$ is needed to estimate $P$ with $95\%$ confidence and a margin of error not overceeding $3\%$?
+
+```{r}
+(qnorm((1 - ((1 - 0.95) / 2)), 0, 1) / 0.03) ^ 2 * 0.25 # ballpark sample size
+```
+
+---
+
+> What confidence level is used in a study where $\hat{P}=52\%$, $n=1022$, and the margin of error is $3\%$?
+
+```{r}
+z <- sqrt(0.52 * 0.48 / 1022) / 0.03
+pnorm(z, 0, 1)
+```
+
+Approximately $70\%$.
+
+---
+
+
+### Estimation Difference Betweeen 2 Means ($\mu_{1} - \mu_{2}$)
+
+$((\bar{X_{1}}-\bar{X_{2}})-\frac{t_{\alpha}(k)}{2}\sqrt{\frac{S_{1}^{2}}{n_{1}}+\frac{S_{2}^2}{n_{2}}},(\bar{X_{1}}-\bar{X_{2}})+\frac{t_{\alpha}(k)}{2}\sqrt{\frac{S_{1}^{2}}{n_{1}}+\frac{S_{2}^2}{n_{2}}})$
+
+---
+
+|Group|Sample Size|Mean|Standard Deviation|
+|:----|:----------|:---|:-----------------|
+|With Sunlight|100|9|2|
+|Without Sunlight|50|6|3|
+
+> Based on the above data, estimate with $90\%$ confidence the difference in the mean number of seeds that germinate with and without sunlight.
+
+```{r}
+std_err <- sqrt((2 ^ 2 / 100) + (3 ^ 2 / 50))
+t <- qt((1 - ((1 - 0.9) / 2)), (50 - 1))
+MoE <- (t * std_err)
+diff <- (9 - 6)
+lowlim <- (diff - MoE)
+uplim <- (diff + MoE)
+print(paste('(', lowlim, ',', uplim, ')', sep=' '))
+```
+
+We can be $90\%$ confidence that the difference in the mean number of seeds that germinate with and without sunlight is anywhere from $2.21$ and $3.79$.
+
+### Estimation Difference Between 2 Proportions ($P_{1} - P_{2}$)
+
+$((\tilde{P_{1}}-\tilde{P_{2}}-\frac{Z_{\alpha}}{2}\sqrt{\frac{\tilde{P_{1}}(1-\tilde{P_{1}})}{\tilde{n_{1}}}+\frac{\tilde{P_{2}}(1-\tilde{P_{2}})}{\tilde{n_{2}}}}), (\tilde{P_{1}}-\tilde{P_{2}}+\frac{Z_{\alpha}}{2}\sqrt{\frac{\tilde{P_{1}}(1-\tilde{P_{1}})}{\tilde{n_{1}}}+\frac{\tilde{P_{2}}(1-\tilde{P_{2}})}{\tilde{n_{2}}}}))$
+
+- $\tilde{n_{1}} = n_{1}+1$
+- $\tilde{n_{2}} = n_{1}+1$
+- $X_{1}$ = Number in first sample who have the trait of interact
+- $X_{2}$ = Number in second sample who have the trait of interact
+
+$\tilde{P_{1}}=\frac{X_{1}+1}{\tilde{n_{1}}}=\frac{X_{1}+1}{n_{1}+1}$
+
+$\tilde{P_{2}}=\frac{X_{2}+1}{\tilde{n_{2}}}=\frac{X_{2}+1}{n_{2}+1}$
+
+## Linear Models
+
+### Simple Linear Regression Model (**SLRM**)
+
+_A mathematical model for predicting a numerical response variable $y$ based on a numerical predictor variable $x$._
+
+$E[Y_{i}] = \alpha + \beta X_{i} + \varepsilon_{i}$
+
+|Variable|Description|
+|-------:|:----------|
+|$E[Y_{i}]$|expected value or mean response for the $i^{th}$ case.|
+|$X_{i}$|predictor variable value for the $i^{th}$ case.|
+|$\alpha$|y-intercept of the model. (_constant_)|
+|$\beta$|slope of the model.|
+|$\varepsilon_{i}$|random error for the $i^{th}$ case. (_unknown_)|
+
+The mean response variable ($E[Y_{i}]$) can be determine by some deterministic component ($\alpha + \beta X_{i}$) plus some random component ($\varepsilon_{i}$).
+
+|Variable|Description|
+|-------:|:----------|
+|$Y_{i}$|actual y-value for the $i^{th}$ case.|
+|$\hat{Y_{i}}$|predicted y-value for the $i^{th}$ case.|
+|$e_{i}=Y_{i}-\hat{Y_{i}}$|the $i^{th}$ residual (an estimate of $\varepsilon_{i}$)|
+
+```{r, slrm}
+attach(mtcars)
+head(mtcars)
+plot(mtcars$wt, mtcars$mpg, xlab='Cars Weight', ylab='Cars MPG')
+mod <- lm(mtcars$mpg ~ mtcars$wt)
+abline(mod)
+```
+
+### Regression Diagnostics
+
+_Methods/procedures for verifying if the assumptions behind the model are reasonably met by the data._
+
+Assumptions for the **SLRM**:
+
+1. Both the $x$ and $y$ variables must be numerical.
+    - Easy enough to check by hand.
+2. There is a straight-line or linear relationship between $x$ and $y$.
+    - Check the scatter plot of $y$ vs. $x$.
+3. The error term $\varepsilon_{i}s$ are independent, normally distributed random quantities with mean $0$ and constant variance $\sigma^{2}$.
+    - check the `qqnorm` plot of the residuals and perform a normality test of the residuals.
+        + `qqnorm(mod$residuals)`
+        + `shapiro.test(mod$residuals)`
+
+We expect to see a _somewhat_ straight line in our `qqnorm` plot if our data is truely normally distributed.
+
+```{r, qqnormslrm}
+qqnorm(mod$residuals)
+```
+
+The `shapiro.test` tests the $H_{o}$ that the samples came from a normal distribution.
+This means that if our p-value is less than or equal to $0.05$, we should reject the null hypothesis that the samples came from a normal distribution.
+
+```{r, shapiroslrm}
+shapiro.test(mod$residuals)
+```
+
+The ideal pattern for residual fitted values is an evenly distributed scatter plot as shown below.
+
+```{r, fittedplotslrm}
+plot(mod$fitted.values, mod$residuals)
+abline(h=0)
+```
+
+### Hypothesis Testing for the **SLRM**
+
+#### Hypothesis Test ($\alpha$)
+
+In order to test $H_{o}: \alpha = \alpha_{o}$ vs. $H_{a}: \alpha \neq \alpha_{o}$, the test statistic $t = \frac{\hat{\alpha}-\alpha_{o}}{se_{\hat{\alpha}}}$ under $H_{o}$, this test statistic will have a t-distribution with $n - 2$ degress of freedom where $n$ is the sample size.
+
+---
+
+> Use the `mtcars` dataset to test if the intercept of the model relating `mpg` to `wt` is $0$ or not.
+
+$H_{o}: \alpha = 0$ vs. $H_{a}: \alpha \neq 0$
+
+```{r}
+summary(mod)
+```
+
+We require a _small_ p-value in order to reject the $H_{o}$.
+
+$t = \frac{\hat{\alpha}-\alpha_{o}}{se_{\hat{\alpha}}} = \frac{37.2851 - 0}{1.8776}$
+
+```{r}
+((37.2851 - 0) / 1.8776)
+```
+
+To find the p-value for our distribution we use the following function...
+
+```{r}
+pt(-19.858, 30) * 2
+```
+
+Since our p-value $\approx 0$, we should reject $H_{o}$ which means the data provides statisticaly significant evidence that $\alpha \approx 0$.
+
+#### Hypothesis Test ($\beta$)
+
+In order to test $H_{o}: \beta = \beta_{o}$ vs. $H_{a}: \beta \neq \beta_{o}$, the test statistic $t = \frac{\hat{\beta}-\beta_{o}}{se_{\hat{\beta}}}$ under $H_{o}$, this test statistic will have a t-distribution with $n - 2$ degrees of freedom where $n$ is the sample size.
+
+---
+
+> Use the `mtcars` dataset to test if the slope of the model relating `mpg` to `wt` is $0$ or not.
+
+$H_{o}: \beta = 0$ vs. $H_{a}: \beta \neq 0$
+
+```{r}
+summary(mod)
+```
+
+$t = \frac{\hat{\beta}-\beta_{o}}{se_{\hat{\beta}}} = \frac{-5.3445 - 0}{0.5591}$
+
+```{r}
+((-5.3445 - 0) / 0.5591)
+```
+
+Use the following function to find the p-value...
+
+```{r}
+pt(-9.559, 30) * 2
+```
+
+**But what happens when we have differing values for $\beta$?**
+
+$H_{o}: \beta = -4$ vs. $H_{a}: \beta < -4$
+
+$t = \frac{\hat{\beta}-\beta_{o}}{se_{\hat{\beta}}} = \frac{-5.3445 - (-4)}{0.5591}$
+
+```{r}
+((-5.3445 - (-4)) / 0.5591)
+```
+
+And to find the p-value...
+
+```{r}
+pt(-2.405, 30)
+```
+
+Failing to reject the $H_{o}: \beta = 0$ means $x$ is not a statisticaly significant predictor of $y$.
+
+---
+
+### Confidence Interval Estimation for $\alpha: A100(1 - \alpha_{1})q_{0}$
+
+$(\alpha^{2}-\frac{t_{\alpha}(n - 2)}{2}*se_{\hat{\alpha}},\alpha^{2}+\frac{t_{\alpha}(n - 2)}{2}*se_{\hat{\alpha}})$
+
+```{r}
+summary(mod)
+lowlim <- (37.2851 - (qt(0.95, 30) * 1.8776))
+uplim <- (37.2851 + (qt(0.95, 30) * 1.8776))
+print(paste('(', lowlim, ',', uplim, ')', sep=' '))
+```
+
+Therefore, we are $90\%$ confident that the _intercept_ is anywhere between $34.098$ and $40.472$.
+
+---
+
+> Use the `mtcars` data to estimate with $95\%$ confidence the amount `mpg` will decrease per $1$ ton increase in `wt`.
+
+```{r}
+lowlim <- (-5.3445 - (qt(0.975, 30) * 0.5591))
+uplim <- (-5.3445 + (qt(0.975, 30) * 0.5591))
+print(paste('(', lowlim, ',', uplim, ')', sep=' '))
+```
+
+We are $90\%$ confident that `mpg` will decrease anywhere from $4.2$ to $6.49$ per $1$ tone increase in `wt`. (_will increase a negative amount_)
+
+---
+
+### Goodness-of-fit Measures
+
+|Measure|Description|
+|------:|:----------|
+|**Multiple $R^{2}$**|Proportion or percent of the variation in $y$ explained by $x$|
+|**Residual Standard Error**|Average prediction error when using the model|
+
+```{r}
+summary(mod)
+```
+
+Based on the Multiple $R^{2}$ value, the car's weight can explain about $75\%$ of the other features of the car.
+But, how can we reduce the residual standard error?
+
+We should add more predictors to our model giving us a new model called the **MLRM**.
+
+---
+
+### Multiple Linear Regression Model (**MLRM**)
+
+_A mathematical model for the relationship between a numerical response variable and a set of predictor variables._
+
+$Y_{i} = \beta_{0} + \beta{1} X_{1i} + \beta_{2} X_{2i} + \cdots + \beta_{k} X_{ki} + \varepsilon_{i}$
+
+```{r, mlrm}
+mod2 <- lm(mtcars$mpg ~ mtcars$wt + mtcars$cyl)
+summary(mod2)
+```
+
+As you can see from the above summary, our Multiple $R^{2}$ percentage increased, thus our ability to predict `mpg` has improved with the addition of the predictor `cyl`.

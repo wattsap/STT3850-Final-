@@ -1,0 +1,839 @@
+---
+title: "Final"
+author: "Stephen Bunn"
+date: "May 7, 2016"
+output: html_document
+---
+
+# Tests
+
+---
+
+## Test 1
+
+Directions: Start R Studio and enter the command `attach(mtcars)` on the R console. This will allow you to access the contents of the data frame mtcars. Enter the command `help(mtcars)` to get a description of this data frame then answer the following questions:
+
+```{r, 1-s}
+attach(mtcars)
+```
+
+---
+
+#### 1.
+
+How many _cases_ and how many _variables_ are recorded in this data frame? Is there a categorical variable among the variables in this data frame? If so, identify one and determine what percent (rounded to the nearest whole number) of the cars belong to each of the categories.
+
+```{r, 1-1a}
+mtcars_cases_count <- length(mtcars$mpg)
+mtcars_variables_count <- ncol(mtcars)
+print(paste(
+    'There are',
+    mtcars_cases_count,
+    'cases in the mtcars dataset',
+    sep=' '
+))
+print(paste(
+    'There are',
+    mtcars_variables_count,
+    'variables in the mtcars dataset',
+    sep=' '
+))
+```
+
+_After viewing the `help` for the `mtcars` dataset, it is clear that the `am` variable is a categorical type._
+_We can find the percentages of vehicles with specific transmission types given the following equations._
+
+```{r, 1-1b}
+print(paste(
+    ((length(which(mtcars$am == 0)) / length(mtcars$am)) * 100.0),
+    '% of cars in the mtcars dataset have manual transmission',
+    sep=''
+))
+print(paste(
+    ((length(which(mtcars$am == 1)) / length(mtcars$am)) * 100.0),
+    '% of cars in the mtcars dataset have automatic transmission',
+    sep=''
+))
+```
+
+---
+
+#### 2.
+
+ Describe the shape of the distribution of the `mpg` data. Calculate two measures of center and discuss what the values for these measures tell us about mpgs of the cars in this data frame.
+
+```{r, 1-2}
+hist(mtcars$mpg)
+mean(mtcars$mpg)
+median(mtcars$mpg)
+```
+
+_The histogram of the `mpg` data is right skewed. The mean of average `mpg` is $20.09$ while the median is $19.20$ which means about half of the cars have `mpg` or at most $19.20$ and about half have `mpgs` of at least $19.20$._
+
+---
+
+#### 3.
+
+Calculate two measures of spread or variability of the cars’ `mpg` and discuss what their values tell us about `mpgs` of the cars in this data frame.
+
+```{r, 1-3}
+sd(mtcars$mpg)
+IQR(mtcars$mpg)
+```
+
+_The standard deviation of the `mpg` says that on average, the cars’ `mpgs` are about $6.03$ `mpgs` away from the mean while the IQR says that the range of the middle $50\%$ of the sorted `mpgs` is about $7.4$ `mpg`._
+
+---
+
+#### 4.
+
+Calculate the first quartile and the $90^{th}$ percentile of the `mpg` data and discuss what their values tell us about `mpgs` of the cars in this data frame.
+
+```{r, 1-4}
+quantile(mtcars$mpg, 0.25)
+quantile(mtcars$mpg, 0.90)
+```
+
+_The first quartile of about $15.4$ means about a quarter of the cars have `mpgs` below or equal to this value. The $90^{th}$ percentile of about `30.1` means about $90\%$ of the cars have mpgs below or equal to this value._
+
+---
+
+#### 5.
+
+Is there an outlier among the cars with respect to `mpg`?
+Given the shape of the distribution of the `mpg` data, is it surprising that the mean is higher than the median? Explain.
+
+```{r, 1-5}
+boxplot(mtcars$mpg)
+```
+
+_Based on the above boxplot, there are no outliers in the `mpg` data. Since the `mpg` data is right-skewed, it is not surprising that the mean is higher than the median since this is generally expected in right skewed data._
+
+---
+
+#### 6.
+
+What percent of the cars have mpgs that are more than $2$ standard deviations higher than the mean `mpg`? Explain why this percentage is not close to the percentage predicted by the empirical rule and state this predicted percentage.
+
+```{r, 1-6}
+(
+    length(which(mtcars$mpg > (2 * sd(mtcars$mpg) + mean(mtcars$mpg)))) /
+    length(mtcars$mpg)
+) * 100.0
+```
+
+_$6.25\%$ of the cars have `mpgs` that are more than $2$ standard deviations higher than the mean `mpg`. This is far from the expected $2.5\%$ predicted by the Empirical Rule since the `mpg` data is not bell-shaped._
+
+---
+
+#### 7.
+
+Suppose the $32$ cars on the `mtcars` data frame are treated as the population in one study, what is the population standard deviation of the `mpgs` of these cars?
+
+```{r, 1-7}
+sd(mtcars$mpg) * sqrt((length(mtcars$mpg) - 1) / length(mtcars$mpg))
+```
+
+_The population standard deviation of the `mpg` data is about $5.93$._
+
+---
+
+#### 8.
+
+Write a short paragraph comparing the `mpg` of cars with manual transmission (`am = 1`) with those with automatic transmission (`am = 0`).
+
+```{r, 1-8}
+mpg_manual <- mtcars$mpg[which(mtcars$am == 0)]
+mpg_automatic <- mtcars$mpg[which(mtcars$am == 1)]
+boxplot(mpg_automatic, mpg_manual)
+mean(mpg_manual)
+mean(mpg_automatic)
+sd(mpg_manual)
+sd(mpg_automatic)
+```
+
+_Cars with manual transmission have higher `mpg` on average and higher `mpg` variability compared with cars with automatic transmission as shown by the boxplot(higher median and IQR). Both the median and mean `mpg` for cars with automatic transmission are higher compared with those with automatic transmission. Both the IQR and standard deviation for cars with manual transmission are higher compared with those with automatic transmission._
+
+---
+
+#### 9.
+
+Suppose cars in the data frame that weigh over the median weight (`wt`) are classified as heavy and cars that weigh less than or equal to the median weight are classified as light. What can we say about the relationship between `wt` and `mpg` of cars based on the scatter plot of the data? What is the difference in the average mpg between light cars and heavy cars?
+
+```{r, 1-9}
+plot(mtcars$wt, mtcars$mpg)
+heavy_mpg <- mtcars$mpg[which(mtcars$wt > median(mtcars$wt))]
+light_mpg <- mtcars$mpg[which(mtcars$wt <= median(mtcars$wt))]
+(mean(light_mpg) - mean(heavy_mpg))
+```
+
+_Based on the scatterplot of `mpg` vs. `wt`, there is a moderate negative linear relationship between `mpg` and `wt`. Light cars generally have high `mpg` while heavy cars generally have low `mpg`. On average, light cars’ `mpg` is about $8.84$ higher than heavy cars._
+
+---
+
+#### 10.
+
+Suppose another set of `32` cars from the 1980s have mpgs that are perfectly normally distributed with a mean of $22$ and a standard deviation of $6$. What percent of the 1980s cars have `mpgs` of least $30$? What is the $95^{th}$ percentile of the `mpgs` of these cars from the 1980s?
+
+```{r, 1-10}
+((1 - pnorm(30, mean=22, sd=6)) * 100.0)
+alpha <- 0.05
+qnorm((1 - alpha), mean=22, sd=6)
+```
+
+_About $9.12\%$ of the 1980s cars have `mpgs` of at least $30$ and the $95^{th}$ percentile of the `mpgs` of these cars is about $31.87$._
+
+---
+
+## Test 2
+
+Directions: Answer each of the following problems directly and completely. If the question is not asking for an explanation, don’t put an explanation. Try not to spend more than 2 minutes per question, on average and not more than 30 minutes for Part A.
+
+---
+
+### Part A.
+
+A researcher randomly assigns four $3$ ft. by $3$ ft. agricultural plots to two conditions (with sunlight and without sunlight), planted $10$ seeds of a certain plant species on each of the plots, then after a month counted how many seeds germinated. He obtained the following data on each plot and the count of seeds that germinated on each plot:
+
+---
+
+#### 1.
+
+|Plot Type|Plot 1|Plot 2|
+|:--------|:----:|:----:|
+|With Sunlight|10|8|
+|Without Sunlight|4|6|
+
+##### a.
+
+Is this study an observational study?
+
+_No, this is a designed experiment since plots are subjected to different conditions._
+
+##### b.
+
+Based on the number and type of variables used in the study, what design was used in this study?
+
+_Since there is one numerical response variable and one explanatory variable, this is a one-way ANOVA design._
+
+Based on how the subjects were assigned to the treatments, what design was used in this study?
+
+_Since the plots are randomly assigned to the treatements in a totally random fashion, this is a Completely Randomized Design (CRD)._
+
+##### c.
+
+Identify exactly the experimental units in the study and how many?
+
+_The experimental units are the units being assigned to the treatments, so in this case the plots, and there are $4$ of them used in this study._
+
+##### d.
+
+Identify the factory and the response variable in the study.
+
+_The factory is the independent variable in the study, so it is the presense or absense of sunlight. The response is the depended variable measured or observed after the treatments are assigned to the experimental units in the study, so it is the count of seeds that germinated per plot._
+
+##### e.
+
+Suppose the soil type is a potential confounding variable in this study, what design (based on how the subjects are assigned to the treatments) should the researcher use to eliminate the confounding effect of this variable on the results of the study?
+
+_To minimize the effect of soil type as a confounding variable, the plots can first be blocked or grouped by soil type then for each soil type, a CRD can be performed in allocating the treatments within each block. This design is called Randomized Complete Block Design or RCBD. Alternatively, a paired design can be used too where pairs of plots having the same soil type are used as experimental units._
+
+---
+
+#### 2.
+
+To determine if sunlight have a positive effect on seed germination in the study on the previous page, the researcher needs to conduct a hypothesis testing procedure.
+
+##### a.
+
+What are the null and alternative hypothesis for this study?
+
+$H_{o}:$ Sunlight has no effect on seed germination.
+
+$H_{a}:$ Sunlight has a positive effect on seed germination.
+
+##### b.
+
+Calculate the value of the appropriate test statistic for this study.
+
+```{r, 2-A2b}
+sun_plot <- c(10, 8)
+nosun_plot <- c(4, 6)
+test_statistic <- (mean(sun_plot) - mean(nosun_plot))
+test_statistic
+```
+
+_Since the data can be viewed as $2$ samples (sunlight sample and no sunlight sample) of numerical data, the appropriate test statistic is the difference in the means of the $2$ samples which has an observed value of $4$._
+
+##### c.
+
+Obtain the exact permutation reference distribution of the test statistic in **part b** if there is really no difference between the two treatments by completing the table below. How many possible treatment allocations can be made if $2$ plots will be assigned to each treatment?
+
+```{r, 2-A2c}
+library(gtools)
+original_data <- c(10, 8, 4, 6)
+assign <- combinations(length(original_data), 2, 1:length(original_data))
+treatment_1 <- matrix(nrow=nrow(assign), ncol=2)
+treatment_2 <- matrix(nrow=nrow(assign), ncol=2)
+test_statistics <- vector()
+for (i in 1:nrow(assign)) {
+    treatment_1[i,] <- original_data[assign[i,]]
+    treatment_2[i,] <- original_data[-assign[i,]]
+    test_statistics[i] <- (mean(treatment_1[i,]) - mean(treatment_2[i,]))
+}
+cbind(treatment_1, treatment_2, test_statistics)
+```
+
+_There is a total of ${4 \choose 2} = 6$ possible treatment allocations that can be made._
+
+##### d.
+
+Calculate the p-value of the test based on the exact reference distribution under $H_{o}$.
+
+```{r, 2-A2d}
+(length(which(test_statistics >= test_statistic)) / length(test_statistics))
+```
+
+_Out of the $6$ possible values of the test statistic given in **part c**, only $1$ is equal to or greater than the observed value of the test statistic from the original data. So the p-value is $\frac{1}{6} = 0.17$._
+
+##### e.
+
+If the lvel of significance is set at $\alpha = 0.2$, interpret the p-value and state the conclusion of the test in context of this study.
+
+_Since the p-value in **part d** is less than the level of significance of $0.2$, we should reject the $H_{o}$ and conclude that the data provides statistically significant evidence that sunlight has a positive effect on seed germination._
+
+---
+
+#### 3.
+
+Another researcher realized that the sample sizes in the study on the first page were too small. He repeated the study but this time used $200$ plots, recorded if more than half of the seeds planted on each plot have germinated (**Y**) or not (**N**) and obtained the following data summary:
+
+|Plot Type|Plot Count|Germinated Plots|
+|:--------|:--------:|:--------------:|
+|With Sunlight|100|86|
+|Without Sunlight|100|64|
+
+##### a.
+
+Calculate the observed value of the appropriate test statistic for testing if sunlight has a positive effect on seed germination in this study.
+
+```{r, 2-A3a}
+sun_plot_count <- 100
+sun_plot_germinated <- 86
+nosun_plot_count <- 100
+nosun_plot_germinated <- 64
+test_statistic <- (
+    (sun_plot_germinated / sun_plot_count) -
+    (nosun_plot_germinated / nosun_plot_count)
+)
+```
+
+_Since we have $2$ samples of Bernoulli data each of size $100$, the appropriate test statistic is the difference in two sample proportions which is $0.22$._
+
+##### b.
+
+What are the values of the mean and standard deviation of the approximate reference distribution of the test statistic in **part a** if there is really no difference between the two treatments?
+
+_The approximate reference distribution of $\hat{P_{1}} - \hat{P_{2}}$ if the $H_{o}$ of no difference between the two treatements is true will be approximately normal with a mean equal to $0$ and standard deviation given below:_
+
+```{r, 2-A3b}
+p_hat <- (
+    (sun_plot_germinated + nosun_plot_germinated) /
+    (sun_plot_count + nosun_plot_count)
+)
+stdev <- sqrt(
+    (p_hat * (1 - p_hat)) *
+    (1 / sun_plot_count + 1 / nosun_plot_count)
+)
+stdev
+```
+
+##### c.
+
+If there is no difference between the two treatments, what is the probability that the test statistic is equal to or more extreme than the observed value in **part a** using the reference distribution in **part b**?
+
+_This probability is the value of the test given below:_
+
+```{r, 2-A3c}
+(1-pnorm(test_statistic, 0, stdev))
+```
+
+##### d.
+
+If the level of significance is set at $\alpha = 0.1$, what is the conclusion of the study based on the probability obtained in **part c**?
+
+_Since the p-value in **part c** is less than the level of significance of $0.1$, we can reject the $H_{o}$ and conclude that the data provide statistically significant evidence that sunlight has a positive effect on seed germination._
+
+---
+
+### Part B.
+
+Start R Studio and enter the command `attach(mtcars)` on the R console. This will allow you to access the contents of the data frame mtcars. Enter the command `help(mtcars)` to get a description of this data frame then answer the following questions:
+
+---
+
+#### 1.
+
+Using the indexing method, write the R command(s) that will find all possible combinations of $3$ cars from the data frame (no need to write the result of executing the commands). How many possible combinations can be made?
+
+```{r, 2-B1}
+assign <- combinations(nrow(mtcars), 3, 1:nrow(mtcars))
+nrow(assign)
+```
+
+---
+
+#### 2.
+
+Using the indexing method, write the R command(s) needed to randomly assign each of the cars to one of two treatments (no need to write the result of executing the commands). How many cars were assigned to each of the two treatments?
+
+```{r, 2-B2a}
+treatment_1 <- sample(1:nrow(mtcars), round(nrow(mtcars) / 2))
+treatment_2 <- (1:nrow(mtcars))[-treatment_1]
+length(treatment_1)
+length(treatment_2)
+```
+
+_Those assigned to `treatment_1` are car numbers:_
+
+```{r, 2-B2b}
+treatment_1
+```
+
+_The remaining cars will be assigned to `treatment_2`_
+
+---
+
+#### 3.
+
+Using the `mpg` data, perform an appropriate test procedure using the approximate reference distribution of the test statistic under $H_{p}$ to test if the mean miles per gallon (`mpg`) of cars is higher than $18$. Calculate the value of the appropriate test statistic, state and interpret the p-value of the test and state the conclusion of the test procedure if the level of significance is $0.1$.
+
+_Since we are testing for the mean of a single population, the test statistic is the studentized mean given by:_
+
+```{r, 2-B3a}
+studentized_mean <- (sd(mtcars$mpg) / sqrt(length(mtcars$mpg)))
+observed_test_statistic <- ((mean(mtcars$mpg) - 18) / studentized_mean)
+observed_test_statistic
+```
+
+_If the $H_{o}$ that the population mean $mpg = 18$ is true, the approximate reference distribution of this test statistic is a t-distribution with a degree of freedom equal to:_
+
+```{r, 2-B3b}
+(length(mtcars$mpg) - 1)
+```
+
+_The p-value of the test is given by:_
+
+```{r, 2-B3c}
+(1 - pt(observed_test_statistic, (length(mtcars$mpg) - 1)))
+```
+
+_Now since this p-value is less than the level of significance of $0.1$, we can reject the $H_{o}$ and conclude that the `mpg` data provides statistically significant evidence that the mean `mpg` for all cars is higher than $18$ `mpg`._
+
+---
+
+#### 4.
+
+What is the critical value of the test statistic in **#3** if the level of significance is $0.1$?
+
+_The critical value of the test statistic is the largest possible value of the test statistic that won't lead to rejecting the $H_{o}$. If the level of significance is $0.1$, the critical value can be found by:_
+
+```{r, 2-B4a}
+alpha <- 0.1
+critical_value <- qt((1 - alpha), (length(mtcars$mpg) - 1))
+critical_value
+```
+
+_This means that the critical value of the sample mean must be:_
+
+```{r, 2-B4b}
+((critical_value * studentized_mean) + 18)
+```
+
+_Thus, samples of $32$ cars with a mean `mpg` higher than this value will lead to rejection of the $H_{o}$._
+
+---
+
+## Test 3
+
+---
+
+### Part A.
+
+A researcher randomly assigns six $3$ ft. by $3$ ft. agricultural plots to two conditions (with sunlight and without sunlight), planted $10$ seeds of a certain plant species on each of the plots, then after a month counted how many seeds germinated. He obtained the following data on each plot and the count of seeds that germinated on each plot:
+
+#### 1.
+
+|Plot Type|Plot 1|Plot 2|Plot 3|
+|:--------|:----:|:----:|:----:|
+|With Sunlight|10|8|6|
+|Without Sunlight|4|6|5|
+
+---
+
+##### a.
+
+Obtain and interpret a $90\%$ confidence interval estimate of the difference in the mean number of seeds per plot that will germinate for plots with and without sunlight.
+
+```{r, 3-A1a}
+sun_plot <- c(10, 8, 6)
+nosun_plot <- c(4, 6, 5)
+sun_plot_count <- length(sun_plot)
+nosun_plot_count <- length(nosun_plot)
+diff <- (mean(sun_plot) - mean(nosun_plot))
+stderr <- (sqrt(
+    (var(sun_plot) / sun_plot_count) +
+    (var(nosun_plot) / nosun_plot_count)
+))
+score <- (1- ((1 - 0.9) / 2))
+z <- qt(score, min((sun_plot_count - 1), (nosun_plot_count - 1)))
+MoE <- (z * stderr)
+c((diff - MoE), (diff + MoE))
+```
+
+_We can be $90\%$ confidence that the difference in the mean nubmer of seeds  per plot that will germinate for plots with and without sunlight is anywhere between $-0.77$ and $6.77$._
+
+##### b.
+
+What is the margin of error of the estimate?
+
+```{r, 3-A1b}
+MoE
+```
+
+##### c.
+
+Does the interval estimate in **part a** provide statistically significant evidence that there is a difference in germination rates for plots with and without sunlight? Explain.
+
+_No, since the interval contains 0, the interval estimate does not provide statistically significant evidence that there is a difference at the $10\%$ level of significance._
+
+##### d.
+
+Discuss the effect of increasing the confidence level on the margin of error of the interval estimate of the difference in mean germination rates.
+
+_Increasing the confidence level means increasing the chance that the random interval will contain the true difference in means since the resulting interval will be wider which is equivalent to increasing the margin of error of the estimate._
+
+##### e.
+
+Obtain with and interpret a $95\%$ confidence interval estimate of the mean number of seeds that will germinate for plots with sunlight.
+
+```{r, 3-A1e}
+x_bar <- mean(sun_plot)
+stderr <- (sd(sun_plot) / sqrt(sun_plot_count))
+score <- (1 - ((1 - 0.95) / 2))
+z <- qt(score, (sun_plot_count - 1))
+MoE <- (z * stderr)
+c((x_bar - MoE), (x_bar + MoE))
+```
+
+_We can be $95\%$ confident that the true mean number of seeds that will germinate for plots with sunlight is anywhere from $3.03$ to $12.97$ per plot. Since plots are planted with only $10$ seeds, the interval should be revised to `(3.03, 10)`._
+
+---
+
+#### 2.
+
+Another researcher realized that the sample sizes in the experiment were too small. He repeated the study and recorded the following data:
+
+|Plot Type|Seed Count|Seed Germinated|
+|:--------|:--------:|:-------------:|
+|With Sunlight|1000|860|
+|Without Sunlight|1000|640|
+
+##### a.
+
+Obtain and interpret a $90\%$ confidence interval estimate of the difference in the proportion of seeds that germinates with and without sunlight.
+
+```{r, 3-A2a}
+sun_plot_count <- 1000
+sun_plot_germinated <- 860
+nosun_plot_count <- 1000
+nosun_plot_germinated <- 640
+n1 <- (sun_plot_count + 4)
+n2 <- (nosun_plot_count + 4)
+p1 <- ((sun_plot_germinated + 2) / n1)
+p2 <- ((nosun_plot_germinated + 2) / n2)
+diff <- (p1 - p2)
+stderr <- sqrt((p1 * ((1 - p1) / n1)) + (p2 * ((1 - p2) / n2)))
+score <- (1 - ((1 - 0.9) / 2))
+z <- qnorm(score)
+MoE <- (z * stderr)
+c((diff - MoE), (diff + MoE))
+```
+
+_We can be $90\%$ confident that the difference in the proportion of seeds that germinates with and without sunlight is anywhere between $0.1883$ and $0.2499$ or equivalently we can be $90\%$ confident that the germination rates for seeds with sunlight is $18.83\%$ to $24.99\%$ higher than the germination rates for those without sunlight._
+
+##### b.
+
+What is the margin of error of the estimate?
+
+```{r, 3-A2b}
+MoE
+```
+
+##### c.
+
+Does this interval estimate in part a provide statistically significant evidence that there is a difference in germination rates with and without sunlight? Explain.
+
+_Yes, since the interval does not contain $0$. In fact since the interval contains all positive numbers, we can say that the data provide statistically significant evidence that the germination rate for seeds in sunlight is higher than that for seeds with no sunlight._
+
+##### d.
+
+Obtain and interpret a $95\%$ confidence interval estimate of the proportion of seeds that will germinate for seed exposed to sunlight.
+
+```{r, 3-A2d}
+p_hat <- (sun_plot_germinated / sun_plot_count)
+stderr <- sqrt((p_hat * (1 - p_hat)) / sun_plot_count)
+score <- (1 - ((1 - 0.95) / 2))
+z <- qnorm(score)
+MoE <- (z * stderr)
+c((p_hat - MoE), (p_hat + MoE))
+```
+
+_We can be $95\%$ confident interval that the proportion of seeds that will germinate for seed exposed to sunlight is anywhere from $0.8385$ to $0.8815$ or equivalently we can be $95\%$ confident that the germination rate for seed with sunlight is anywhere from $83.85\%$ to $88.15\%$._
+
+##### e.
+
+How many seeds should be planted so that the proportion of seeds that will germinate can be estimated with a margin of error not exceeding $2\%$ (or $0.02$) and with a confidence level of $96\%$?
+
+```{r, 3-A2e}
+MoE_limit <- 0.02
+p_hat_estimate <- 0.5
+(((qnorm((1 - ((1 - 0.96) / 2)), 0, 1) / MoE_limit) * p_hat_estimate) ^ 2)
+```
+
+_About $2636$ seeds should be planted to be able to estimate seed germination rate with a margin of error not exceeding $2\%$ and with $96\%$ confidence._
+
+---
+
+### Part B.
+
+Start R Studio and enter the command `attach(mtcars)` on the R console. This will allow you to access the contents of the data frame mtcars. Enter the command `help(mtcars)` to get a description of this data frame then answer the following questions:
+
+---
+
+#### 1.
+
+Fit a simple linear regression model that can possibly be used to predict a car’s `mpg` based on its engine’s horsepower (`hp`). What is the estimate of the slope and what does this say about cars’ `mpg` and `hp`?
+
+```{r, 3-B1}
+mod <- lm(mtcars$mpg ~ mtcars$hp)
+beta_hat <- mod$coefficients[2]
+beta_hat
+```
+
+_The slope is about $-0.068$ which means every 1 `hp` increase tends to decrease `mpg` by about $0.068$._
+
+---
+
+#### 2.
+
+Obtain and interpret a $90\%$ confidence interval of the slope of the model.
+
+```{r, 3-B2}
+summary(mod)
+diff <- mod$coefficients[2]
+stderr <- 0.0101
+score <- (1- ((1 - 0.9) / 2))
+z <- qt(score, (length(mtcars$mpg) - 2))
+MoE <- (z * stderr)
+c((diff - MoE), (diff + MoE))
+```
+
+_We can be $90\%$ confident that the slope of the model is anywhere from $-0.085$ to $-0.051$._
+
+---
+
+#### 3.
+
+Based on the appropriate output after fitting the simple linear regression model, is the car’s engine horsepower a statistically significant predictor of its `mpg`? Explain.
+
+_From the above model summary, the p-value for testing $H_{o}: \beta = 0$ is very small($1.787835e-10$) so we can reject $H_{o}$. this means tha data provide statistically significant evidence that the slope is not $0$ and that the `hp` is a statistically significant predictor of `mpg`._
+
+---
+
+#### 4.
+
+Based on the appropriate regression diagnostic procedure, is the assumption of normality of the error terms in the model reasonable? Explain.
+
+```{r, 3-B4}
+qqnorm(mod$residuals)
+shapiro.test(mod$residuals)
+```
+
+_The `qqnorm` plot indicate deviation from the expected straight line pattern if the residuals are normally distributed and the Shapiro test has a low p-value ($0.02568$). both diagnostics suggest that the normality of the error terms assumption is not reasonable._
+
+---
+
+#### 5.
+
+Based on the appropriate regression diagnostic procedure, is the assumption of constant variance in the error terms of the model reasonable? Explain.
+
+```{r, 3-B5}
+plot(mod$fitted.values, mod$residuals)
+abline(h=0)
+```
+
+_The plot of residuals vs. fitted values suggests that the asusmption of constant variance may not be reasonable since the plot shows relatively much smaller residuals in the middle portion of the plot compared to the residuals on the extreme left and extreme right side of the plot._
+
+---
+
+#### 6.
+
+Interpret the R-squared value after fitting the model in **part 1**. Would this value indicate that the model will give a really good, a reasonable or a really bad prediction, on average? Explain.
+
+_From the model summary, R-squared is $0.6024$ which means about $60.24\%$ of the variation in `mpg` of cars is explained by the cars’ horsepower. This value suggests that predictions using the model would be reasonable, on average, not too bad and not too good._
+
+---
+
+#### 7.
+
+Fit a multiple linear regression model that can possibly be used to predict a car’s `mpg` based on `hp` and `disp`. Use the model to predict the average `mpg` of cars with `hp = 120` and `disp = 200`.
+
+```{r, 3-B7}
+mod <- lm(mtcars$mpg ~ mtcars$hp + mtcars$disp)
+given_hp <- 120
+given_disp <- 200
+predicted_mpg <- (
+    mod$coefficients[1] +
+    (mod$coefficients[2] * given_hp) +
+    (mod$coefficients[3] * given_disp)
+)
+predicted_mpg
+```
+
+_The model predicts that the average mpg of cars with `hp = 120` and `disp = 200` is about $21.7$ `mpg`._
+
+---
+
+#### 8.
+
+Which of the two predictors in **#7** is / are statistically significant at the $5\%$ level?
+
+```{r, 3-B8}
+summary(mod)
+```
+
+_From the model summary, the p-value for testing $H_{o}: \hat{\beta_{1}} = 0$ is about $0.0737$ which is greater than the $0.05$ significance level so `hp` is not a statistically significant predictor of `mpg` if `disp` is included in the model._
+
+_The p-value for testing $H_{o}: \hat{\beta_{2}} = 0$ is about $0.0003$ which is less than the significance level of $0.05$. Thus, in this model only `disp` is a staistically significant predictor if the two predictors are included in the model._
+
+
+---
+
+# Notes
+
+---
+
+## Functions
+
+Splits `data.frame` given a vector of split percentages.
+
+```{r, func-split_data}
+split_data <- function(dat, splits=c(0.5, 0.5), fudge=1) {
+    stopifnot(all(splits) >= 0, fudge <= length(splits))
+    splits <- (splits / sum(splits))
+    n_dat_sum <- round(nrow(dat) * splits)
+    n_dat_sum[fudge] <- (nrow(dat) - sum(n_dat_sum[-fudge]))
+    return(split(dat, sample(rep(1:length(splits), n_dat_sum))))
+}
+```
+
+---
+
+## Terms
+
+- **Observational Experiment**: Observing a group without influencing it.
+- **Designed Experiment**: Applies treatments to experimental units and attempts to isolate effects of the treatments on individuals.
+- **Experimental Units**: Any subject that is being experimented on.
+- **Response Variable**: The variable of an experiment which determines if the experiment is successful (_what is being checked_)
+- **Explantory Variable**: A variable which explains the effect of a treatment.
+- **Factor**: An explanatory variable manipulated by the experimenter.
+- **Factor Levels**: The unique variations of a factor.
+- **Treatment**: Combinations of factor levels.
+- **Randomization**: Methods of unbiased treatment distribution among subjects.
+- **Replication**: Being a ble to reproduce the results of an earlier experiment.
+- **Blinding**: Preventing specific test features from becoming public.
+- **Single Blinding**: Subjects are unaware whether they are control or not.
+- **Double Blinding**: Subjects and experimenters are unaware of who is the control or not.
+- **Confounding**: Experiment is set up such that the experimenter can't remove alternatives for a relationship between independed and dependent variables.
+- **1-way ANOVA**: Differences of means between the means of 2 or more unrelated groups. Tests the $H_{o}$, accept $H_{a}$ is significant result.
+- **2-way ANOVA**: Used to determine mean between groups split on 2 independent variables.
+- **MANOVA**: Multivariate, 1-way ANOVA with many dependent variables.
+- **ANCOVA**: 1-way ANOVA with a covariate.
+
+---
+
+- **Null Hypothesis** ($H_{o}$) = A statement which corresponds to no real effect (_doesn't support hypothesis_).
+- **Alternative Hypothesis** ($H_{a}$) = A statement which corresponds to a real effect (_supports hypothesis_).
+- **Test Statistic** ($T$) = Numerical function of data whose value determines the result of the test.
+- **P-value** = Probability that the observed data satisfies the $H_{a}$.
+- **Level of significance** ($\alpha$) = Percentage which defines when we should accept/reject the $H_{o}$.
+- **Population Standard Deviation** ($\sigma$) = The standard deviation of your subject/test population.
+- **Critical Value** = Exact value where the $H_{o}$ would be rejected (_use `qnorm` for quantities_).
+
+---
+
+- **Type I Error** = Rejected a true $H_{o}$ (false positive), Max probability = $\alpha$
+- **Type II Error** = Not rejecting a false $H_{o}$ (false negative)
+
+|Test Procedure|Data Type|Test Statistic|Exact Ref Distrib.|Approx. Ref Distrib.|$H_{o}$|
+|:-------------|:-------:|:-------------|:-----------------|:------------------:|:------|
+|Population Mean $\mu$|Numerical|Sample Mean $\bar{x}$|Distrib. of all possible values of $\bar{x}$ under $H_{o}$|$N(\mu_{o}, \frac{\sigma}{\sqrt{n}}$|$H_{o}: \mu = \mu_{o}$|
+|Population Proportion $P$|Bernoulli|Sample Proportion $\hat{P}$|Distrib. of all possible values of $\hat{P}$ under $H_{o}$|$N(\mu_{o}, \sqrt{\frac{P_{o}(1-P_{o})}{n}})$|$H_{o}: P = P_{o}$|
+
+## Confidence Interval Estimation
+
+The z-value can be found by the equations below:
+
+- $\frac{Z_{\alpha}}{2}$ (if $\sigma$ is known) = `qnorm((1-((1-alpha)/2)), 0, 1)`
+- $\frac{t_{\alpha}(n-1)}{2}$ (if $\sigma$ is not known) = `qt((1-((1-alpha)/2)), (n-1))`
+
+---
+
+### Confidence Interval Estimation of a Population Mean ($\mu$)
+
+#### If $\sigma$ known
+
+- z-value = $\frac{Z_{\alpha}}{2}$ (if $\sigma$ is known) = `qnorm((1-((1-alpha)/2)), 0, 1)`
+- stderr = $\frac{\sigma}{\sqrt{n}}$ (if $\sigma$ is known)
+
+$$(\bar{x}-(\frac{Z_{\alpha}}{2}\frac{\sigma}{\sqrt{n}}), \bar{x}+(\frac{Z_{\alpha}}{2}\frac{\sigma}{\sqrt{n}}))$$
+
+#### If $\sigma$ not known
+
+- z-value = $\frac{t_{\alpha}(n-1)}{2}$ (if $\sigma$ is not known) = `qt((1-((1-alpha)/2)), (n-1))`
+- stderr = $\frac{S}{\sqrt{n}}$ (if $\sigma$ is not known)
+
+$$(\bar{x}-(\frac{t_{\alpha}(n-1)}{2}\frac{S}{\sqrt{n}}), \bar{x}+(\frac{t_{\alpha}(n-1)}{2}\frac{S}{\sqrt{n}}))$$
+
+---
+
+### Confidence Interval Estimation of a Population Proportion ($P$)
+
+- z-value = $\frac{Z_{\alpha}}{2}$
+- stderr = $\sqrt{\frac{\hat{P}(1-\hat{P})}{n}}$
+
+$$(\hat{P}-(\frac{Z_{\alpha}}{2}\sqrt{\frac{\hat{P}(1-\hat{P})}{n}}), \hat{P}+(\frac{Z_{\alpha}}{2}\sqrt{\frac{\hat{P}(1-\hat{P})}{n}}))$$
+
+---
+
+### Confidence Interval Estimation of a Difference of two Means ($\mu_{1}-\mu_{2}$)
+
+> See question 1 in part A of test 3
+
+- z-value = $\frac{t_{\alpha}(K)}{2}$ = `qt((1-((1-alpha)/2)), min((n1-1), (n2-1)))`
+- stderr = $\sqrt{\frac{S_{1}^{2}}{n_{1}}+\frac{S_{2}^2}{n_{2}}}$ = `sqrt((var(s1)/n1)+(var(s2)/n2))`
+
+$$((\bar{x_{1}}-\bar{x_{2}})-(\frac{t_{\alpha}(K)}{2}\sqrt{\frac{S_{1}^{2}}{n_{1}}+\frac{S_{2}^2}{n_{2}}}), (\bar{x_{1}}+\bar{x_{2}})+(\frac{t_{\alpha}(K)}{2}\sqrt{\frac{S_{1}^{2}}{n_{1}}+\frac{S_{2}^2}{n_{2}}}))$$
+
+---
+
+### Confidence Interval Estimation of a Difference of two Proportions ($P_{1}-P_{2}$)
+
+> See question 2 in part A of test 3
+
+- z-value = $\frac{Z_{\alpha}}{2}$ = `qnorm((1-((1-alpha)/2)), 0, 1)`
+- stderr = $\sqrt{\frac{\tilde{P_{1}}(1-\tilde{P_{1}})}{\tilde{n_{1}}}+\frac{\tilde{P_{2}}(1-\tilde{P_{2}})}{\tilde{n_{2}}}}$
+- $\tilde{P_{1}} = \frac{X_{1}+1}{\tilde{n_{1}}} = \frac{X_{1}+1}{n_{1}+1}$
+
+$$((\tilde{P_{1}}-\tilde{P_{2}})-(\frac{Z_{\alpha}}{2}\sqrt{\frac{\tilde{P_{1}}(1-\tilde{P_{1}})}{\tilde{n_{1}}}+\frac{\tilde{P_{2}}(1-\tilde{P_{2}})}{\tilde{n_{2}}}}), (\tilde{P_{1}}-\tilde{P_{2}})+(\frac{Z_{\alpha}}{2}\sqrt{\frac{\tilde{P_{1}}(1-\tilde{P_{1}})}{\tilde{n_{1}}}+\frac{\tilde{P_{2}}(1-\tilde{P_{2}})}{\tilde{n_{2}}}}))$$
