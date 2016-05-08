@@ -1,0 +1,120 @@
+```{r}
+attach(mtcars)
+```
+
+##TEST 1
+
+###Vocab:
+- Categorical variable: 
+- Shape/distribution of data:
+- measures of center:
+- measures of spread/variability: 
+- quartile: 
+
+###Questions
+1. How many cases and how many variables are recorded in this data frame? Is there a categorical variable among the variables in this data frame? If so, identify one and determine what percent (rounded to the nearest whole number) of the cars belong to each of the categories.
+
+```{r}
+length(mpg)
+ncol(mtcars)
+head(mtcars)
+table(am)
+
+```
+There are 32 cases, 11 variables. Transmission is categorical. 19/32 or 59% of cars have auto trans, 13/32 or 41% of cars have manual trans.
+
+2. Describe the shape of the distribution of the mpg data. Calculate two measures of center and discuss what the values for these measures tell us about mpgs of the cars in this data frame.
+
+```{r}
+hist(mpg)
+mean(mpg)
+median(mpg)
+
+```
+The histogram of the mpg data is right skewed. The mean or average mpg is 20.09 while the median is 19.2 which means about half of the cars have mpg of at most 19.2 and about half have mpg of at least 19.2.
+
+3. Calculate two measures of spread or variability of the cars’ mpg and discuss what their values tell us about mpgs of the cars in this data frame.
+
+```{r}
+sd(mpg)
+IQR(mpg)
+
+```
+The standard deviation of the mpg says that on average, the cars’ mpgs are about 6.03 mpgs away from the mean while the IQR says that the range of the middle 50% of the sorted mpgs is about 7.4 mpg.
+
+4. Calculate the first quartile and the 90th percentile of the mpg data and discuss what their values tell us about mpgs of the cars in this data frame.
+
+```{r}
+quantile(mpg,.25)
+quantile(mpg, .9)
+
+```
+The first quartile of about 15.4 means about a quarter of the cars have mpgs below or equal to this value. The 90th percentile of about 30.1 means about 90% of the cars have mpgs below or equal to this value.
+
+5. Is there an outlier among the cars with respect to mpg?
+Given the shape of the distribution of the mpg data, is it surprising that the mean is higher than the median? Explain.
+
+```{r}
+boxplot(mpg)
+
+```
+Based on the boxplot, there are no outliers in the mpg data. Since the mpg data is right-skewed, it is not surprising that the mean is higher than the median since this is generally expected in right skewed data.
+
+6. What percent of the cars have mpgs that are more than 2 standard deviations higher than the mean mpg?
+Explain why this percentage is not close to the percentage predicted by the empirical rule and state this predicted percentage.
+
+```{r}
+stan <- function(var, sd_num, mid)
+{
+    length(var[which(var>sd_num*sd(var)+mid(var))])/length(var)*100
+}
+stan(mpg, 2, mean)
+
+```
+6.25% of the cars have mpgs that are more than 2 standard deviations higher than the mean mpg. This is far from the expected 2.5% predicted by the Empirical Rule since the mpg data is not bell-shaped.
+
+7. Suppose the 32 cars on the mtcars data frame are treated as the population in one study, what is the population standard deviation of the mpgs of these cars?
+
+```{r}
+popStandardDev <- function(x) {
+    sd(x)*sqrt((length(x)-1)/length(x))
+}
+popStandardDev(mpg)
+
+```
+
+The population standard deviation of the mpg data is about 5.93.
+
+8. Write a short paragraph comparing the mpg of cars with manual transmission (am = 1) with those with automatic transmission (am = 0).
+
+```{r}
+mpgmanual<-mpg[which(am==1)]
+mpgauto<-mpg[which(am==0)]
+boxplot(mpgmanual,mpgauto)
+mean(mpgmanual)
+mean(mpgauto)
+sd(mpgmanual)
+sd(mpgauto)
+
+```
+Cars with manual transmission have higher mpg on average and higher mpg variability compared with cars with automatic transmission as shown by the boxplot(higher median and IQR). Both the median and mean mpg for cars with automatic transmission are higher compared with those with automatic transmission. Both the IQR and standard deviation for cars with manual transmission are higher compared with those with automatic transmission.
+
+9. Suppose cars in the data frame that weigh over the median weight (wt) are classified as heavy and cars that weigh less than or equal to the median weight are classified as light. What can we say about the relationship between wt and mpg of cars based on the scatter plot of the data? What is the difference in the average mpg between light cars and heavy cars?
+
+```{r}
+plot(wt, mpg)
+heavympg<-mpg[which(wt > median(wt))]
+lightmpg<-mpg[which(wt<= median(wt))]
+mean(lightmpg)-mean(heavympg)
+
+```
+Based on the scatterplot of mpg vs. wt, there is a moderate negative linear relationship between mpg and wt. Light cars generally have high mpg while heavy cars generally have low mpg. On averageL, light cars’ mpg is about 8.84 higher than heavy cars.
+
+10. Suppose another set of 32 cars from the 1980s have mpgs that are perfectly normally distributed with a mean of 22 and a standard deviation of 6. What percent of the 1980s cars have mpgs of least 30? What is the 95th percentile of the mpgs of these cars from the 1980s?
+
+```{r}
+(1-pnorm(30,22,6))*100
+qnorm(.95,22,6)
+
+```
+About 9.12% of the 1980s cars have mpgs of at least 30 and the 95th percentile of the mpgs of these cars is about 31.87.

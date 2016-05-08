@@ -1,0 +1,189 @@
+##Test 2: 
+
+###Vocab:
+
+###Test:
+```{r}
+library(gtools)
+```
+A researcher randomly assigns four 3 ft. by 3 ft. agricultural plots to two conditions (with sunlight and without sunlight), planted 10 seeds of a certain plant species on each of the plots, then after a month counted how many seeds germinated. He obtained the following data on each plot and the count of seeds that germinated on each plot:
+
+Plots With Sunlight: Plot 1(10) Plot 4(8)
+Plots Without Sunlight: Plot 2(4) Plot 3(6)
+
+1.
+a. Is this study an observational study?
+
+No, this is a designed experiment since plots are subjected to different conditions.
+
+b. Based on the number and type of variables used in the study, what design was used in this study?
+
+Since there is one numerical response variable and one explanatory variable, this is a one-way ANOVA design.
+
+c. Based on how the subjects were assigned to the treatments, what design was used in this study?
+
+Since the plots are randomly assigned to the treatments in a totally random fashion, this is a Completely Randomized Design (CRD)
+
+d. Identify exactly the experimental units in this study and how many?
+
+The experimental units are the units being assigned to the treatments so in this case the plots and there are 4 of them used in the study.
+
+e. Identify the factor and the response variable in the study.
+
+The factor is the independent variable in the study so it is the presence or absence of sunlight. The response is the dependent variable measured or observed after the treatments are assigned to the experimental units in the study so it is the count of seeds that germinated per plot.
+
+f. Suppose the soil type is a potential confounding variable in this study, what design (based on how the subjects are assigned to the treatments) should the researcher use to eliminate the confounding effect of this variable on the results of the study?
+
+To minimize the effect of soil type as a confounding variable, the plots can first be blocked or grouped by soil type then for each soil type, a CRD can be performed in allocating the treatments within each block. This design is called Randomized Complete Block Design or RCBD. Alternatively, a paired design can be used too where pairs of plots having the same soil type are used as experimental units.
+
+
+2. To determine if sunlight have a positive effect on seed germination in the study on the previous page, the researcher needs to conduct a hypothesis testing procedure.
+
+a. What are the null and alternative hypotheses for this study?
+
+Ho: Sunlight has no effect on seed germination.
+Ha: Sunlight has a positive effect on seed germination.
+
+b. Calculate the value of the appropriate test statistic for this study.
+
+```{r}
+sun<-c(10,8)
+nosun<-c(4,6)
+testat<-mean(sun)-mean(nosun)
+testat
+
+```
+Since the data can be viewed as 2 samples (sunlight sample and no sunlight sample) of numerical data, the appropriate test statistic is the difference in the means of the 2 samples which has an observed value of 4.
+
+c. Obtain the exact permutation reference distribution of the test statistic in part b if there is really no difference between the two treatments by completing the table below. How many possible treatment allocations can be made if 2 plots will be assigned to each treatment?
+
+```{r}
+index<-1:4
+original.data<-c(10,8,4,6)
+assign<-combinations(4,2,index)
+treat1<-matrix(nrow=nrow(assign),ncol=2)
+treat2<-matrix(nrow=nrow(assign),ncol=2)
+tstat<-vector()
+for (i in 1:nrow(assign))
+{dummy<-assign[i,]
+  treat1[i,]<-original.data[dummy]
+treat2[i,]<-original.data[-dummy]
+tstat[i]<-mean(treat1[i,])-mean(treat2[i,])
+}
+cbind(treat1,treat2,tstat)
+nrow(assign)
+
+```
+There are a total of 4C2 = 6 possible treatment allocations that can be made.
+
+d. Calculate the p-value of the test based on the exact reference distribution under H0.
+
+Out of the 6 possible values of the test statistic given in part c, only 1 is equal to or greater than the observed value of the test statistic from the original data so the p-value = 1/6 = .17
+
+e. If the level of significance is set at ?? = 0.2, interpret the p-value and state the conclusion of the test in context of the study.
+
+Since the p-value in part d is less than the level of significance of 0.2, we should reject the null hypothesis and conclude that the data provid statistically significant evidence that sunlight has a positive effect on seed germination.
+
+3. Another researcher realized that the sample sizes in the study on the first page were too small. He repeated the study but this time used 200 plots, recorded if more than half of the seeds planted on each plot have germinated (Y) or not (N) and obtained the following data summary:
+
+With Sunlight: 86 out of 100 plots have more than half of the seed planted that have germinated
+Without Sunlight: 64 out of 100 plots have more than half of the seed planted that have germinated
+
+a. Calculate the observed value of the appropriate test statistic for testing if sunlight have positive effect on seed germination in this study.
+
+Since we have 2 samples of Bernoulli data each of size 100, the appropriate test statistic is the difference in two sample proportions which has a value of .86-.64 = 0.22
+
+b. What are the values of the mean and standard deviation of the approximate reference distribution of the test statistic in part a if there is really no difference between the two treatments?
+
+The approximate reference distribution of p1hat - p2hat if the null hypothesis of no difference between the two treatments is true will be approximately Normal with mean equal to 0 and standard deviation given below:
+
+```{r}
+n1<-100
+n2<-100
+phat<-(86+64)/(n1+n2)
+stdev<-sqrt(phat*(1-phat)*(1/n1+1/n2))
+stdev
+
+```
+
+c. If there is no difference between the two treatments, what is the probability that the test statistic is equal to or more extreme than the observed value in part a using the reference distribution in part b ?
+
+This probability is the -value of the test given below:
+
+```{r}
+1-pnorm(.22,0,stdev)
+```
+
+d. If the level of significance is set at ?? = 0.1, what is the conclusion of the study based on the probability obtained in part c?
+
+Since the p-value in part c is less than the level of significance of 0.1, we can reject the null hypothesis and conclude that the data provide statistically significant evidence that sunlight has a positive effect on seed germination.
+
+Part B. (40 points) Start R Studio and enter the command attach(mtcars) on the R console. This will allow you to access the contents of the data frame mtcars. Enter the command help(mtcars) to get a description of this data frame then answer the following questions:
+
+1. Using the indexing method, write the R command(s) that will find all possible combinations of 3 cars from the data frame (no need to write the result of executing the commands). How many possible combinations can be made?
+
+```{r}
+attach(mtcars)
+library(gtools)
+n<-nrow(mtcars)
+index<-1:n
+assign<-combinations(n,3,index)
+nrow(assign)
+
+```
+2. Using the indexing method, write the R command(s) needed to randomly assign each of the cars to one of two treatments (no need to write the result of executing the commands). How many cars were assigned to each of the two treatments?
+
+```{r}
+n<-nrow(mtcars)
+index<-1:n
+treat1<-sample(index,round(n/2))
+treat2<-index[-treat1]
+length(treat1)
+length(treat2)
+treat1
+
+```
+The remaining cars will be assigned to treatment 2.
+
+3. Using the mpg data, perform an appropriate test procedure using the approximate reference distribution of the test statistic under H0 to test if the mean miles per gallon (mpg) of cars is higher than 18. Calculate the value of the appropriate test statistic, state and interpret the p-value of the test and state the conclusion of the test procedure if the level of significance is 0.1.
+
+Since we are testing for the mean of a single population, the test statistic is the studentized mean given by
+
+```{r}
+se.mean<-sd(mpg)/sqrt(length(mpg))
+Tobserved<-(mean(mpg)-18)/se.mean
+Tobserved
+
+```
+If the null hypothesis that the population mean mpg = 18 is true, the approximate reference distribution of this test statistic is a t-distrubtuion with a degree of freedom equal to
+
+```{r}
+length(mpg)-1
+
+```
+The p-value of the test is then given by
+
+```{r}
+1-pt(Tobserved,length(mpg)-1)
+
+```
+
+Now, since this p-value is less than the level of significance of 0.1, we can reject the null hypothesis and conclude that the mpg data provide statistically significant evidence that the mean mpg for all cars is higher than 18 mpg.
+
+4. What is the critical value of the test statistic in #3 if the level of significance is 0.1?
+
+The critical value of the test statistic is the largest possible value of the test statistic that won’t lead to rejecting the null hypothesis. If the level of significance is 0.1, the critical value must be
+
+```{r}
+crit<-qt(.9,length(mpg)-1)
+crit
+
+```
+This means the critical value of the sample mean must be
+
+```{r}
+crit*se.mean + 18
+
+```
+
+Thus samples of 32 cars with a mean mpg higher than this value will lead to rejection of the null hypothesis.

@@ -1,0 +1,394 @@
+---
+title: "Test 3"
+author: "Stephen Bunn, Ben Adams, Andrew Watts"
+date: "April 27, 2016"
+output: html_document
+---
+
+### Test 3 Review
+
+1. Basic R commands covered during the first 2 exams like commands for opening a data file, manipulating vectors, lists and data frames (sorting and accessing subsets, for example), creating loops, calculating basic descriptive statistics, creating graphs and calculating probabilities and percentiles from the normal distribution.
+
+2. New R commands/procedures covered after the first 2 exams like the `lm()`, `summary(lm())`, `qqnorm()` and, `shapiro.test()` commands as well as creating plots useful for regression diagnostics like residual plots.
+
+- `lm` = The `lm` function is used to fit linear models.
+
+```{r}
+attach(mtcars)
+mod <- lm(mtcars$mpg ~ mtcars$wt)
+```
+
+- `summary` = This function is used to present the information of some type of model.
+
+```{r}
+summary(mod)
+```
+
+- `qqnorm` = This is a generic function the default method of which produces a normal QQ plot of the values in Y. `qqline` adds a line to a “theoretical”, by default normal, quantile-quantile plot which passes through the probs quantiles, by default the first and third quartiles.
+
+```{r}
+qqnorm(mod$residuals)
+```
+
+- `shapiro.test` = Performs the Shapiro-Wilk test of normality. This test tests the null hypothesis that the samples came from a normal distribution. This means that if our `p-value` is less than or equal to $0.05$, we would reject the null hypothesis meaning that our samples come from a normal distribution.
+
+```{r}
+shapiro.test(mod$residuals)
+```
+
+3. Know basic terminologies associated with confidence intervals such as _parameter_, _statistic_, _point estimate_, _standard error_, _margin of error_, _lower limit_, _upper limit_, and _confidence level_.
+
+[This](https://nickredfern.wordpress.com/2011/02/10/parameters-statistics-and-confidence-intervals/) is a good overview of confidence intervals.
+
+- **Parameter** = This term describes a characteristic of a population.
+- **Statistic** = This term is an estimate of a **parameter** calculated from a sample drawn from the population under study.
+- **Point Estimate** = A **statistic** is a point estimate of a **parameter**, but it is very unlikely that the two will be exactly identical.
+- **Standard Error** = A measure of statistical accuracy of an estimate. ($\frac{\sigma}{\sqrt{n}} = \frac{0.85}{\sqrt{20}} = 0.19$)
+- **Margin of Error** = An amount that is allowed for in case of miscalculation or change of circumstances in statistical experiments.
+- **Lower Limit** = The lower bound of a confidence interval range.
+- **Upper Limit** = The upper bound of a confidence intervals range.
+- **Confidence Interval** = A range of values so defined that there is a specified probabilty that the value of a parameter lies within it.
+
+4. Obtain and interpret confidence interval estimate of a population mean, a population proportion, difference of 2 population means and difference of 2 population proportions given a sample data.
+
+confidence interval estimate of a population mean:
+
+```{r}
+
+error_mean <- qt(0.975,df=length(mtcars$mpg) - 1)*sd(mtcars$mpg)/sqrt(length(mtcars$mpg))
+lower_bound<- mean(mtcars$mpg)-error_mean
+upper_bound <- mean(mtcars$mpg)+error_mean
+lower_bound
+upper_bound
+
+```
+- see: http://www.r-tutor.com/elementary-statistics/interval-estimation/interval-estimate-population-proportion for details
+
+- for the following, the survey dataset will be used. We are going to determine the proportion of female students based on the result in the survey dataset. na.omit will give us just the sex data of the population, and length of this sex data will count the valid response data. the survey dataset is in the MASS library
+
+confidence interval estimate of a population proportion:
+
+```{r}
+library(MASS)
+attach(survey)
+gender.response = na.omit(survey$Sex)
+n = length(gender.response) 
+
+```
+- na.omit will give us just the sex data of the population, and length of this sex data will count the valid response data. 
+
+next, we need to find the nuber of female students, so we compare gender.response with the factor female and get the sum. dividing it by n gives the femal student population in the sample survey
+
+```{r}
+k = sum(gender.response == "Female")
+pbar = k / n
+pbar
+
+```
+this means the point estimate of female student proportion in the survey is 50%.
+
+next, we need the standard error.
+
+- Since there are two tails of the normal distribution, the 95% confidence level would imply the 97.5th percentile of the normal distribution at the upper tail. Therefore, zα∕2 is given by qnorm(.975). Hence we multiply it with the standard error estimate SE and compute the margin of error.
+
+Combining margin of error with the sample proportion, we obtain the confidence interval.
+
+```{r}
+SE = sqrt(pbar*(1-pbar)/n)
+E = qnorm(.975) * SE
+pbar + c(-E, E)
+
+```
+this means that At 95% confidence level, between 43.6% and 56.3% of the university students are female, and the margin of error is 6.4%.
+
+- another way to do it instead of a formula is: 
+
+```{r}
+prop.test(k,n)
+
+```
+
+Calulating the confidence interval of two population means using mtcars mpg and wt:
+
+```{r}
+m1 = mean(mtcars$mpg)
+m2 = mean(mtcars$wt)
+sd1 = sd(mtcars$mpg)
+sd2 = sd(mtcars$wt)
+len1 = length(mtcars$mpg)
+len2 = length(mtcars$wt)
+std_error = sqrt(sd1 * sd1/len1 + sd2 * sd2 / len2)
+error_2 = qt(0.975, df=pmin(len1,len2) - 1) * std_error
+low_bound = (m1-m2)-error_2
+up_bound = (m1-m2)+error_2
+low_bound
+up_bound
+
+```
+
+***DONT KNOW HOW TO DO TWO POPULATION PROPORTIONS***
+
+
+5. Know the relationship between/among sample size, margin of error, length of confidence interval and confidence level.
+
+- sample size/margin of error:
+    * **sample size**: The larger your sample, the more sure you can be that their answers truly reflect the population. This indicates that for a given confidence level, the larger your sample size, the smaller your confidence interval (margin of error). However, the relationship is not linear (i.e., doubling the sample size does not halve the confidence interval).
+
+    * **Percentage of sample**:
+    Your accuracy also depends on the percentage  of your sample that picks a particular answer. If 99% of your sample said "Yes" and 1% said "No" the chances of error are remote, irrespective of sample size. However, if the percentages are 51% and 49% the chances of error are much greater. It is easier to be sure of extreme answers than of middle-of-the-road ones. When determining the sample size needed for a given level of accuracy, you must use the worst case percentage of the sample (50%). You should also use this percentage if you want to determine a general level of accuracy for a sample you already have. To determine the confidence interval for a specific answer your sample has given, you can use the percentage picking that answer (as the worst-case percentage) and get a smaller interval.
+
+    * **Population size**:
+How many people are there in the group your sample represents? This may be the number of people in a city you are studying, the number of people who buy new cars, etc. Often you may not know the exact population size. This is not a problem. The mathematics of probability proves the size of the population is irrelevant, unless the size of the sample exceeds a few percent of the total population you are examining. This means that a sample of 500 people is equally useful in examining the opinions of a state of 15,000,000 as it would a city of 100,000. For this reason, most calculations ignore the population size when it is "large" or unknown. Population size is only likely to be a factor when you work with relatively small and known groups of people (e.g., the members of a professional association). The confidence interval calculations assume you have a genuine random sample of the relevant population. If your sample is not truly random, you cannot rely on the intervals. Non-random samples usually result from some flaw in the sampling procedure. An example of such a flaw is to
+only call people during the day, and miss almost everyone who works. For most purposes, you cannot assume that the non-working population accurately represents the entire (working and non-working) population. Population samples are random when no bias determines their individual selection.
+
+    * sample size and margin of error have an inverse relationship. as sample size increases, margin of error decreases 
+
+    * after a certain point increasing sample size beyond what you already have gives a diminished return because increased accuracy will be negligible
+
+- length of confidence interval and confidence interval:
+    * **confidence interval**:
+    The confidence interval (commonly referred to as the margin of error or error rate) is the plus or minus figure you hear mentioned relative to surveys or opinion polls. For example, if you use a confidence interval of 4 and 47% percent of your sample picks an answer you can be "sure" that if you had asked the question of the entire relevant population between 43% (47-4) and 51% (47+4) would have picked that answer. Most researchers prefer a confidence interval of less than 4 percentage points. 
+
+    * **confidence level**:
+    The confidence level tells you how sure you can be. Expressed as a percentage, it represents how often the true percentage of the population who would pick an answer lies within the confidence interval. The 95% confidence level means you can be 95% certain; the 99% confidence level means you can be 99% certain. Most researchers use the 95% confidence level.
+
+    * as your confidence level increases, your confidence interval gets wider
+
+Example: what sample size is needed to estimate P with a 95% confidence and a margin of error not overceeding 3%?
+
+```{r}
+(qnorm((1-((1-0.95)/2))) / 0.3) ^2 * 0.25 # ballpark sample size
+
+```
+Example: what confidence interval is used in a study where phat = 52%, n ] 1022, and margin of error is 3%?
+
+```{r}
+z = (sqrt(0.52 * 0.48 / 1022) / 0.003)
+pnorm(z,0,1)
+```
+
+Example: Estimate with a 90% confidence the proportion/percentage of all households in boone that have kids based on a sample of 1000 households if 320 of these households have kids
+
+```{r}
+n = 1000
+p_hat = 320/n
+x = qnorm((1-((1-0.9)/2)), 0, 1)
+marg_error = z * sqrt(p_hat * (1-p_hat) / n)
+low_limit = p_hat-marg_error
+up_limit = p_hat + marg_error
+
+```
+
+6. Fit a Simple Linear Regression Model (**SLRM**) or a Multiple Linear Regression Model (**MLRM**) for predicting a numerical response variable $Y$ based on a set of predictors.
+
+Fitting a SLRM is as easy as applying the desired predictors to the `lm` function to generate a linear regression model.
+
+```{r}
+mod1 <- lm(mtcars$mpg ~ mtcars$wt)
+summary(mod1)
+```
+
+However, by applying another predictor to our model we may reduce the error in the `mod1` linear model. This is the MLRM and is a model for the relationship between a numerical response variable and a set of predictor variables.
+
+$Y_{i}+\beta_{0}+\beta_{1}X_{1i}+\beta_{2}X_{2i}+\cdots+\beta_{k}X_{ki}+\varepsilon_{i}$
+
+Where $\varepsilon_{i}$ are independent, normally distributed with a mean $0$ and constant variance $\sigma^{2}$.
+
+```{r}
+mod2 <- lm(mtcars$mpg ~ mtcars$wt + mtcars$cyl)
+summary(mod2)
+```
+
+We can tell that because the multiple r-squared value inceased, our ability to predict `mpg` has improved with the addition of the predictor `cyl`.
+
+7. Perform regression diagnostics to check the assumptions about the error term of a regression model.
+
+As shown by [this](http://www.statmethods.net/stats/rdiagnostics.html) short article regarding _regression diagnostics_, there are several ways to diagnose regression models.
+
+```{r}
+# NOTE: reqires car and gvlma packages, install.packages(c('car', 'gvlma'))...
+library(car)
+fit <- lm(mpg~disp+hp+wt+drat, data=mtcars)
+```
+
+- **Outliers**
+
+```{r}
+outlierTest(fit)
+qqPlot(fit, main="QQ Plot")
+leveragePlots(fit)
+```
+
+- **Influentail Observations**
+
+```{r}
+avPlots(fit)
+cutoff <- 4 / ((nrow(mtcars) - length(fit$coefficients) - 2))
+plot(fit, which=4, cook.levels=cutoff)
+influencePlot(fit, id.method='identify', main='Influence Plot', sub='Circle size is proportional to Cook\'s Distance')
+```
+
+- **Non-normality**
+
+```{r}
+qqPlot(fit, main='QQ Plot')
+library(MASS)
+sresid <- studres(fit)
+hist(sresid, freq=F, main='Distribution of Studentized Residuals')
+xfit <- seq(min(sresid), max(sresid), length=40)
+yfit <- dnorm(xfit)
+lines(xfit, yfit)
+```
+
+- **Non-constant Error Variance**
+
+```{r}
+ncvTest(fit)
+spreadLevelPlot(fit)
+```
+
+- **Multi-collinearity**
+
+```{r}
+vif(fit)
+sqrt(vif(fit)) > 2
+```
+
+- **Nonlinearity**
+
+```{r}
+crPlots(fit)
+ceresPlots(fit)
+```
+
+- **Non-independence of Errors**
+
+```{r}
+durbinWatsonTest(fit)
+```
+
+- **Additional Diagnostic Help**
+
+```{r}
+library(gvlma)
+gvmodel <- gvlma(fit)
+summary(gvmodel)
+```
+
+8. Obtain and interpret confidence interval estimates of the parameters/coefficients of a regression model.
+
+
+
+Calculating the confidence interval when using a t-test is similar to using a normal distribution. The only difference is that we use the command associated with the t-distribution rather than the normal distribution.
+
+- assume that the sample mean is 5, the sample standard deviation is 2, and the sample size is 20. We use a 95% confidence level and wish to find the confidence interval.
+
+```{r}
+a <- 5
+s <- 2
+n <- 20
+error <- qt(0.975,df=n-1)*s/sqrt(n)
+left <- a-error
+right <- a+error
+left
+right
+
+```
+The true mean has a probability of 95% of being in the interval between 4.06 and 5.94 assuming that the original random variable is normally distributed, and the samples are independent.
+
+
+this example uses mtcars$mpg data
+
+```{r}
+summary(mtcars$mpg)
+length(mtcars$mpg)
+mean(mtcars$mpg)
+sd(mtcars$mpg)
+
+```
+now we can use these values to calulate an error for the mean
+
+```{r}
+error2 <- qt(0.975,df=length(mtcars$mpg) - 1)*sd(mtcars$mpg)/sqrt(length(mtcars$mpg))
+
+```
+the confidence interval is found by adding and subtracting error from the mean
+
+```{r}
+
+left2 <- mean(mtcars$mpg)-error2
+right2 <- mean(mtcars$mpg)+error2
+left2
+right2
+
+```
+There is a 95% probability that the true mean is between 17.91768 and 22.26357 assuming that the original random variable is normally distributed, and the samples are independent.
+
+
+9. Perform hypothesis tests about the parameters/coefficients of a regression model.
+
+To perform a hypothesis test for the parameters of our simle linear regression model ($H_{o}: \alpha = \alpha_{o}$ vs $H_{a} : \alpha \neq \alpha_{o}$), the test statistic $t = \frac{\hat{\alpha}-\alpha_{o}}{se_{\hat{\alpha}}}$ under $H_{o}$, will have a t-distribution with $n-2$ degrees of freedon where $n$ is the sample size.
+
+$E[Y_{i}] = \alpha + \beta X + \varepsilon_{i}$
+
+> Using the `mtcars` data to test if the intercept of the model relating `mpg` to `wt` is $0$ or not. (i.e., test $H_{o}: \alpha = 0$ vs $H_{a}: \alpha \neq 0$)
+
+We require a small p-value to reject the null hypothesis.
+
+$t = \frac{\hat{\alpha}-\alpha_{o}}{se_{\hat{\alpha}}} = \frac{37.2851 - 0}{1.8776}$
+
+```{r}
+((37.2851 - 0) / 1.8776)
+```
+
+To find the p-value for our distribution we use the function call `pt(-19.858, 30) * 2`
+
+```{r}
+pt(-19.858, 30) * 2
+```
+
+Since our p-value $\approx 0$, we should reject the null hypothesis, which means the dat aprovides statistically significant evidence that $\alpha \approx 0$.
+
+10. Interpret output of the `summary(lm())` command including the table of coefficients as well as the _goodness-of-fit_ measures like the multiple R-squared and the Residual Standard Error.
+
+The function summary.lm computes and returns a list of summary statistics of the fitted linear model given in object, using the components (list elements) "call" and "terms" from its argument, plus:
+
+* **residuals**:
+the idea is to give a quick summary of the distribution. It should be roughly symmetrical about mean, the median should be close to 0, the 1Q and 3Q values should ideally be roughly of similar absolute magnitude etc.
+
+
+* **coefficients**:
+a p x 4 matrix with columns for the estimated coefficient, its standard error, t-statistic and corresponding (two-sided) p-value. Aliased coefficients are omitted.
+
+
+* **sigma**:
+the square root of the estimated variance of the random error. σ^2 = 1/(n-p) Sum(w[i] R[i]^2), where R[i] is the i-th residual, residuals[i].
+
+* **df**: 
+degrees of freedom, a 3-vector (p, n-p, p*), the first being the number of non-aliased coefficients, the last being the total number of coefficients.
+
+* **fstatistic**: 
+The F statistic on the last line is telling you whether the regression as a whole is performing 'better than random' - any set of random predictors will have some relationship with the response. This is used for a test of whether the model outperforms 'random noise' as a predictor. The p-value in the last row is the p-value for that test.
+
+* **r.squared**:
+The Multiple R-squared, also called the coefficient of determination is the proportion of the variance in the data that's explained by the model. The more variables you add - even if they don't help - the larger this will be. The Adjusted one reduces that to account for the number of variables in the model.
+
+* **adj.r.squared**:
+the above R^2 statistic ‘adjusted’,  reduced to account for the number of variables in the model.
+
+
+Example calling summary on lm(formula = mtcars$mpg ~ mtcars$wt)
+
+```{r}
+summary(mod)
+```
+
+The F is the ratio of two variances, the variance explained by the parameters in the model and the residual or unexplained variance. You can see this better if we get the ANOVA table for the model via anova():
+
+```{r}
+anova(mod)
+```
+
+see: https://stats.stackexchange.com/questions/5135/interpretation-of-rs-lm-output
+
+notice the FFs are the same in the ANOVA output and the summary(mod) output. The Mean Sq column contains the two variances and 847.73/9.28=91.375 We can compute the probability of achieving an FF that large under the null hypothesis of no effect, from an FF-distribution with 1 and 30 degrees of freedom. This is what is reported in the final column of the ANOVA table. 

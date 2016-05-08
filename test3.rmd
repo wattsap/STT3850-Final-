@@ -1,0 +1,196 @@
+##Test 3
+
+###Vocab:
+
+###Test:
+A researcher randomly assigns six 3 ft. by 3 ft. agricultural plots to two conditions (with sunlight and without sunlight), planted 10 seeds of a certain plant species on each of the plots, then after a month counted how many seeds germinated. He obtained the following data on each plot and the count of seeds that germinated on each plot:
+
+Plots with Sunlight: Plot 1(10) Plot 4(8) Plot 5(6)
+Plots without Sunlight: Plot 2(4) Plot 3(6) Plot 6(5)
+
+1. 
+a. Obtain and interpret a 90% confidence interval estimate of the difference in the mean number of seeds per plot that will germinate for plots with and without sunlight.
+
+```{r}
+sample1<-c(10,8,6)
+sample2<-c(4,6,5)
+n1<-length(sample1)
+n2<-length(sample2)
+diff<-mean(sample1)-mean(sample2)
+se.diffmean<-sqrt(var(sample1)/n1+var(sample2)/n2)
+talpha<-qt(.95,min(n1-1,n2-1))
+me<-talpha*se.diffmean
+ll<-diff-me
+ul<-diff+me
+CI<-c(ll,ul)
+CI
+
+```
+We can be 90% confident that the difference in the mean number of seeds per plot that will germinate for plots with and without sunlight is anywhere between -.77 to 6.77. 
+
+b. compute the margin of error for the estimate
+
+```{r}
+me
+```
+c. Does this interval estimate in part a provides a statistically significant evidence that there is a difference in germination rates for plots with and without sunlight? Explain.
+
+No, since the interval contains 0, the interval estimate does not provide a statistically significant evidence that there is a difference at the 10% level of significance.
+
+d. Discuss the effect of increasing the confidence level on the margin of error of the interval estimate of the difference in mean germination rates.
+
+Increasing the confidence level means increasing the chance that the random interval will contain the true difference in means since the resulting interval will be wider which is equivalent to increasing the margin of error of the estimate.
+
+e. Obtain with and interpret a 95% confidence interval estimate of the mean number of seeds that will germinate for plots with sunlight.
+
+```{r}
+xbar<-mean(sample1)
+se.mean<-sd(sample1)/sqrt(n1)
+talpha<-qt(.975,n1-1)
+me<-talpha*se.mean
+ll<-xbar-me
+ul<-xbar+me
+CI<-c(ll,ul)
+CI
+```
+We can be 95% confident that the true mean number of seeds that will germinate for plots with sunlight is anywhere from 3.03 to 12.97 per plot. Since plots are planted with only 10 seeds, the interval should be revised to (3.03, 10].
+
+2. Another researcher realized that the sample sizes in the experiment were too small. He repeated the study and recorded the following data:
+
+860 out 1000 seeds exposed to sunlight have germinated while 640 out of 1000 seeds not exposed to sunlight have germinated
+
+a. Obtain and interpret a 90% confidence interval estimate of the difference in the proportion of seeds that germinates with and without sunlight.
+
+```{r}
+ntilde1<-1000+4
+ntilde2<-1000+4
+ptilde1<-(860+2)/ntilde1
+ptilde2<-(640+2)/ntilde2
+diff<-ptilde1-ptilde2
+se.diffprop<-sqrt(ptilde1*(1-ptilde1)/ntilde1 +ptilde2*(1-ptilde2)/ntilde2)
+zalpha<-qnorm(.95)
+me<-zalpha*se.diffprop
+ll<-diff-me
+ul<-diff+me
+CI<-c(ll,ul)
+CI
+```
+
+We can be 90% confident that the difference in the proportion of seeds that germinates with and without sunlight is anywhere between .1883 and .2499 or equivalently we can be 90% confident that the germination rates for seeds with sunlight is 18.83% to 24.99% higher than the germination rates for those without sunlight.
+
+b. What is the margin of error of the estimate?
+
+```{r}
+me
+```
+
+c. Does this interval estimate in part a provide statistically significant evidence that there is a difference in germination rates with and without sunlight? Explain.
+
+Yes, since the interval does not contain 0. In fact since the interval contains all positive numbers, we can say that the data provide statistically significant evidence that the germination rate for seeds in sunlight is higher than that for seeds with no sunlight.
+
+d. Obtain and interpret a 95% confidence interval estimate of the proportion of seeds that will germinate for seed exposed to sunlight.
+
+```{r}
+phat<-860/1000
+se.mean<-sqrt(phat*(1-phat)/1000)
+zalpha<-qnorm(.975)
+me<-zalpha*se.mean
+ll<-phat-me
+ul<-phat+me
+CI<-c(ll,ul)
+CI
+
+```
+We can be 95% confident interval that the proportion of seeds that will germinate for seed exposed to sunlight is anywhere from .8385 to .8815 or equivalently we can be 95% confident that the germination rate for seed with sunlight is anywhere from 83.85% to 88.15%.
+
+e. How many seeds should be planted so that the proportion of seeds that will germinate can be estimated with a margin of error not exceeding 2% (or .02) and with a confidence level of 96%?
+
+```{r}
+phat<-0.5
+n<-(qnorm(.98)/.02)^2*phat*(1-phat)
+n
+
+```
+About 2636 seeds should be planted to be able to estimate seed germination rate with a margin of error not exceeding 2% and with 96% confidence.
+
+(40 points). Start R Studio and enter the command attach(mtcars) on the R console. This will allow you to access the contents of the data frame mtcars. Enter the command help(mtcars) to get a description of this data frame then answer the following questions:
+
+1. Fit a simple linear regression model that can possibly be used to predict a car’s mpg based on its engine’s horsepower (hp). What is the estimate of the slope and what does this say about cars’ mpg and hp?
+
+```{r}
+attach(mtcars)
+model<-lm(mpg~hp)
+betahat<-model$coefficients[2]
+betahat
+
+```
+
+The slope is about -.068 which means every 1 hp increase tends to decrease mpg by about .068.
+
+2, Obtain and interpret a 90% confidence interval of the slope of the model.
+
+```{r}
+summary(model)
+n<-length(mpg)
+se.betahat<-.0101
+me<-qt(.95,n-2)*se.betahat
+ll<-betahat-me
+ul<-betahat+me
+CI<-c(ll,ul)
+CI
+
+```
+We can be 90% confident that the slope of the model is anywhere from -.085 to -.051.
+
+3. Based on the appropriate output after fitting the simple linear regression model, is the car’s engine horsepower a statistically significant predictor of its mpg? Explain.
+
+From the above model summary, the p-value for testing Ho: Beta = 0 is very small(1.787835e-10) so we can reject Ho. this means tha data provide statistically significant evidence that the slope is not 0 and that the hp is a statistically significant predictor of mpg.
+
+4. Based on the appropriate regression diagnostic procedure, is the assumption of normality of the error terms in the model reasonable? Explain.
+
+```{r}
+qqnorm(model$residuals)
+shapiro.test(model$residuals)
+
+```
+The qqnorm plot indicate deviation from the expected straight line pattern if the residuals are normally distributed and the Shapiro test has a low p-value (.02568). both diagnostics suggest that the normality of the error terms assumption is not reasonable.
+
+5. ased on the appropriate regression diagnostic procedure, is the assumption of constant variance in the error terms of the model reasonable? Explain.
+
+```{r}
+plot(model$fitted.values,model$residuals)
+abline(h=0)
+
+```
+The plot of residuals vs. fitted values suggests that the asusmption of constant variance may not be reasonable since the plot shows relatively much smaller residuals in the middle portion of the plot compared to the residuals on the extreme left and extreme right side of the plot.
+
+6. Interpret the R-squared value after fitting the model in part 1. Would this value indicate that the model will give a really good, a reasonable or a really bad prediction, on average? Explain.
+
+From the model summary, R-squared is .6024 which means about 60.24% of the variation in mpg of cars is explained by the cars’ horsepower. This value suggests that predictions using the model would be reasonable, on average, not too bad and not too good.
+
+7. Fit a multiple linear regression model that can possibly be used to predict a car’s mpg based on hp and disp. Use the model to predict the average mpg of cars with hp =120 and disp = 200.
+
+```{r}
+model<-lm(mpg~hp+disp)
+given.hp<-120
+given.disp<-200
+betahat0<-model$coefficients[1]
+betahat1<-model$coefficients[2]
+betahat2<-model$coefficients[3]
+predicted.mpg<-betahat0+betahat1*given.hp + betahat2*given.disp
+predicted.mpg
+
+```
+The model predicts that the average mpg of cars with hp =120 and disp = 200 is about 21.7 mpg.
+
+8. Which of the two predictors in #7 is /are statistically significant at the 5% level?
+
+```{r}
+summary(model)
+
+
+```
+
+From the model summary, the p-value for testing Ho: Betahat1 = 0 is about .0737 which is greater than the .05 significance level so hp is not a statistically significant predictor of mpg if disp is included in the model.
+
+The p-value for testing Ho: Betahat2 = 0 is about .0003 which is less than the significance level of .05. Thus, in this model only disp is a staistically significant predictor if the two predictors are included in the model.
